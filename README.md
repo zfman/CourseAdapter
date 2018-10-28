@@ -18,6 +18,8 @@
 
 ## 如何接入
 
+**在接入前必须获得开发者的授权,违者追究法律责任!**
+
 > 以下接入方式针对Android平台，IOS的接入请参考流程自行处理，本平台的API是各个平台通用的
 
 ### 1.复制相关类
@@ -27,12 +29,12 @@
 
 这一步需要复制文件和几个类，其作用如下：
 
-- parse.html : 一个简单html文件，内部预置了两个
-- AssetTools : 资源工具,读取`asset`目录下的文件
-- IArea : 接口锲约类,内部包含两个接口：`Callback`、`WebViewCallback`,其中`Callback`用来回调解析的状态，`WebViewCallback`用来监听`WebView`的加载进度
-- JsSupport : Js工具类，负责Android与Js之间的交互并提供`WebView`默认配置
-- ParseResult : 表示一个课程，解析返回的结果为`List<ParseResult>`
-- SpecialArea : `WebView`绑定的对象，Js操作的具体对象即为SpecialArea
+- [parse.html](https://github.com/zfman/hputimetable/blob/master/app/src/main/assets/parse.html) : 一个简单html文件，内部预置了两个
+- [AssetTools](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/AssetTools.java) : 资源工具,读取`asset`目录下的文件
+- [IArea](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/IArea.java) : 接口锲约类,内部包含两个接口：`Callback`、`WebViewCallback`,其中`Callback`用来回调解析的状态，`WebViewCallback`用来监听`WebView`的加载进度
+- [JsSupport](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/JsSupport.java) : Js工具类，负责Android与Js之间的交互并提供`WebView`默认配置
+- [ParseResult](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/ParseResult.java) : 表示一个课程，解析返回的结果为`List<ParseResult>`
+- [SpecialArea](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/SpecialArea.java) : `WebView`绑定的对象，Js操作的具体对象即为SpecialArea
 
 ### 2.学校搜索
 
@@ -252,7 +254,6 @@ key
 
 ### 5.源码上传(申请适配)
 
-
 ```java
 //请求地址：
 http://www.liuzhuangfei.com/apis/area/index.php?c=Adapter&a=putSchoolHtml
@@ -276,3 +277,78 @@ html
 ```
 
 详细使用案例参见[upload_request](upload_request.md)
+
+### 6.获取适配公告
+
+```java
+//请求地址：
+http://www.liuzhuangfei.com/timetable/index.php?c=Timetable&a=getValue
+
+//请求方式:
+POST
+
+//请求参数：传入固定值
+id:1f088b55140a49e101e79c420b19bce6
+
+//返回结果：
+{
+    "code":200,
+    "msg":"成功",
+    "data":{
+        "id":"1f088b55140a49e101e79c420b19bce6",
+        "value":"嗨!适配平台的后台管理页面没有开发完毕，并且v1.0.9的源码收集模块也存在Bug，所以适配进度会慢一点，预计一周后开始大范围适配，感谢你们的支持，另外注意：已经适配过的学校就不需要再申请适配了！
+上传源码或解析过程中出现问题请联系1193600556@qq.com"
+    }
+}
+```
+
+Retrofit简单演示如下：
+
+```java
+  public interface TimetableService {
+
+    @POST(UrlContacts.URL_GET_VALUE)
+    @FormUrlEncoded
+    Call<ObjResult<ValuePair>> getValue(@Field("id") String id);
+ }
+```
+
+然后调用即可
+```java
+    public static void getValue(Context context, String id,Callback<ObjResult<ValuePair>> callback) {
+        TimetableService timetableService = ApiUtils.getRetrofit(context)
+                .create(TimetableService.class);
+        Call<ObjResult<ValuePair>> call=timetableService.getValue(id);
+        call.enqueue(callback);
+    }
+```
+
+## 申请成为适配者
+
+> 随着用户提交的源码增多，以我一人之力肯定不能适配这么多的学校，所以邀请开发者参与适配。适配用到的语言是Js，但是逻辑都很简单，就是正则匹配到结果后返回，不会的话也没问题，我相信你可以通过我的文档以及各种各样的的案例学会它
+
+那么如何适配呢？
+
+- 发送邮件至开发者邮箱`1193600556@qq.com`
+- 邮件主题:申请课程适配账户-用户姓名,如：`申请课程适配账户-刘壮飞`
+- 邮件内容:可写可不写，写的信息会作为备注
+
+这就Ok了？没错!
+
+只要你的名字不是瞎编的，肯定会通过的，作者会在两日之内将userKey(32位串)发送到你的邮箱,然后登录[全国大学生课程适配平台-官网](http://www.liuzhuangfei.com/)，使用你的姓名和userKey即可登录
+
+## 适配流程
+
+1.登录[全国大学生课程适配平台-官网](http://www.liuzhuangfei.com/)
+
+![Alt](img/adapter_img1.png)
+
+2.个人中心
+
+登录成功后会跳转到个人中心页面
+
+![Alt](img/adapter_img2.png)
+
+3.编码控制台
+
+![Alt](img/adapter_img3.png)
