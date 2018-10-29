@@ -212,7 +212,6 @@ function parse(tag){
 
 /*
 获取标签入口，必须为该方法名和参数列表
-多个标签使用空格分隔
 */
 function getTagList(){
 	var array=new Array();
