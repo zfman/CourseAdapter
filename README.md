@@ -17,14 +17,6 @@
     - [付费方式](#付费方式)
     - [试用方式](#试用方式)
 
-- [如何接入](#如何接入)
-    - [复制相关类](#1复制相关类)
-    - [学校搜索](#2学校搜索)
-    - [课程解析](#3课程解析)
-    - [获取页面源码](#4获取页面源码)
-    - [源码上传(申请适配)](#5源码上传(申请适配))
-    - [获取适配公告](#6获取适配公告)
-
 - [申请成为适配者](#申请成为适配者)
 
 - [适配流程](#适配流程)
@@ -43,6 +35,10 @@
 可以直接搜索学校获得支持的学校列表，然后进入相应的URL，登录个人教务账号后点击解析按钮，直接可以解析出课程集合，案例参考以下软件
 
 [怪兽课表](https://www.coolapk.com/apk/com.zhuangfei.hputimetable)
+
+该平台也可以和课表控件相结合，具体的看该控件的使用文档
+
+[课表控件](https://github.com/zfman/TimetableView)
 
 ## 申请授权流程
 
@@ -66,342 +62,23 @@ Ps:xxx是姓名
 
 ### 免费方式
 
-在本平台上适配30所学校，教务类型不得低于5种，限时一个月完成适配任务
+在本平台上适配**20所**学校，教务类型不得低于**3种**，限时**一个月**完成适配任务
 
 > 教务类型相同的学校解析策略基本一致，难度较低，只需要把测试用例运行一遍，一般情况下几秒就可以解决了，所以只需要写5种解析策略就可以了，限时一个月
 
 ### 付费方式
 
-资费为120 元/年，向作者邮件申请后会得到后续转账相关细节
+资费为**120 元/年**，向作者邮件申请后会得到后续流程
 
 ### 试用方式
 
 没有任何附加条件，但是必须向作者申请，仅仅作为记录
 
-
-## 如何接入
-
-**以下内容使用时必须获得开发者授权,违者追究法律责任!**
-
-> 以下接入方式针对Android平台，IOS的接入请参考流程自行处理，本平台的API是各个平台通用的
-
-### 1.复制相关类
-
-- 复制[asset/parse.html](https://github.com/zfman/hputimetable/tree/master/app/src/main/assets)到你的项目的`asset`目录下
-- 复制[adapter_apis](https://github.com/zfman/hputimetable/tree/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis)包下的类到你的项目中
-
-这一步需要复制文件和几个类，其作用如下：
-
-- [parse.html](https://github.com/zfman/hputimetable/blob/master/app/src/main/assets/parse.html) : 一个简单html文件，内部预置了两个
-- [AssetTools](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/AssetTools.java) : 资源工具,读取`asset`目录下的文件
-- [IArea](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/IArea.java) : 接口锲约类,内部包含两个接口：`Callback`、`WebViewCallback`,其中`Callback`用来回调解析的状态，`WebViewCallback`用来监听`WebView`的加载进度
-- [JsSupport](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/JsSupport.java) : Js工具类，负责Android与Js之间的交互并提供`WebView`默认配置
-- [ParseResult](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/ParseResult.java) : 表示一个课程，解析返回的结果为`List<ParseResult>`
-- [SpecialArea](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/adapter_apis/SpecialArea.java) : `WebView`绑定的对象，Js操作的具体对象即为SpecialArea
-
-### 2.学校搜索
-
-```java
-//请求地址：
-http://www.liuzhuangfei.com/apis/area/index.php?c=Adapter&a=getAdapterList
-
-//请求方式:
-POST
-
-//请求参数：关键字
-key
-
-//返回结果：
-//parsejs：解析使用的Js代码
-//type：教务类型
-//url：教务处网址
-//schoolName：学校名称
-//aid：适配ID
-//其他字段暂时用不到
-{
-    "code":200,
-    "msg":"成功",
-    "data":[
-        {
-            "aid":"2",
-            "schoolName":"河南理工大学",
-            "url":"https://vpn.hpu.edu.cn",
-            "type":"urp",
-            "menujs":"",
-            "eventjs":"",
-            "parsejs":""
-        }
-    ]
-}
-```
-
-详细使用案例参见[search_request](search_request.md)
-
-这一步中可以获取到学校的Js了，之后的操作就是利用该Js解析出课程...
-
-### 3.课程解析
-
-`SpecialArea`构造函数的第2个参数是监听加载的进度的，如果你不需要可以设置为null
-
-`IArea.Callback`用来回调解析的状态，`IArea.WebViewCallback`用来监听`WebView`的加载进度
-
-- `onFindTags(final String[] tags)` : 当发现标签时回调该函数，在该函数中你应该弹出一个对话框，然后执行执行的Js函数，参数是由用户的选择决定的，该函数的目的是为了支持多种类型的课程解析
-- `onFindResult(List<ParseResult> result)` : 当解析完成后回调该函数，课程被封装为了一个集合，拿到课程后你可以做任意操作
-- `String getHtml()` : 该方法暴露给Js调用,Js以此方法的返回值作为输入，进而解析
-- `showHtml(String content)` : 获取页面源码是通过注入Js的方式获取的，Js获取到源码后将html传递给该函数，在该函数中你应该将其赋给全局变量，拿到html后，你应该调用`jsSupport.parseHtml(context(),js)`方法来加载库文件(parse.html)，进入解析流程
-
-接口的详细情况请参见[docs_callback](docs_callback.md)
-
-详细使用案例参见[AdapterSchoolActivity](https://github.com/zfman/hputimetable/blob/master/app/src/main/java/com/zhuangfei/hputimetable/AdapterSchoolActivity.java)
-
-解析由按钮事件`public void onBtnClicked()`触发，演示中的`Toasty`可以替换为`Toast`,核心用法如下：
-```java
-    // 解析课程相关
-    JsSupport jsSupport;
-    SpecialArea specialArea;
-
-    //标记按钮是否已经被点击过
-    //解析按钮如果点击一次，就不需要再去获取html了，直接解析
-    boolean isButtonClicked=false;
-
-    /**
-     * 核心方法:设置WebView
-     */
-    @SuppressLint("SetJavaScriptEnabled")
-    private void loadWebView() {
-        jsSupport = new JsSupport(webView);
-        specialArea = new SpecialArea(this, new MyCallback());
-        jsSupport.applyConfig(this, new MyWebViewCallback());
-        //must be "sa"
-        webView.addJavascriptInterface(specialArea, "sa");
-
-        webView.loadUrl(url);
-    }
-
-    class MyWebViewCallback implements IArea.WebViewCallback {
-
-        @Override
-        public void onProgressChanged(int newProgress) {
-            //进度更新
-            loadingProgressBar.setProgress(newProgress);
-            if (newProgress == 100) loadingProgressBar.hide();
-            else loadingProgressBar.show();
-
-            //河南理工大学教务兼容性处理,不需要的话可以省略
-            if (webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
-                webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
-            }
-        }
-    }
-
-    class MyCallback implements IArea.Callback {
-
-        @Override
-        public void onNotFindTag() {
-            onError("Tag标签未设置");
-            goBack();
-        }
-
-        @Override
-        public void onFindTags(final String[] tags) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context());
-            builder.setTitle("请选择解析标签");
-            builder.setItems(tags, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    jsSupport.callJs("parse('" + tags[i] + "')");
-                }
-            });
-            builder.create().show();
-        }
-
-        @Override
-        public void onNotFindResult() {
-            onError("未发现匹配");
-            goBack();
-        }
-
-        @Override
-        public void onFindResult(List<ParseResult> result) {
-            saveSchedule(result);
-        }
-
-        @Override
-        public void onError(String msg) {
-            Toasty.error(context(), msg).show();
-        }
-
-        @Override
-        public void onInfo(String msg) {
-            Toasty.info(context(), msg).show();
-        }
-
-        @Override
-        public void onWarning(String msg) {
-            Toasty.warning(context(), msg).show();
-        }
-
-        @Override
-        public String getHtml() {
-            return html;
-        }
-
-        @Override
-        public void showHtml(String content) {
-            if (TextUtils.isEmpty(content)) {
-                onError("showHtml:is Null");
-            }
-            html = content;
-            jsSupport.parseHtml(context(),js);
-        }
-    }
-
-    /**
-    按钮事件触发获取源码操作
-    */
-    public void onBtnClicked() {
-        if(!isButtonClicked){
-            isButtonClicked=true;
-            jsSupport.getPageHtml("sa");
-        }else {
-            jsSupport.parseHtml(context(),js);
-        }
-    }
-```
-
-### 4.获取页面源码
-
-获取源码由按钮事件`public void onBtnClicked()`触发，核心用法如下：
-
-```java
-
-    JsSupport jsSupport;
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private void loadWebView() {
-        jsSupport=new JsSupport(webView);
-        jsSupport.applyConfig(this,new MyWebViewCallback());
-        webView.addJavascriptInterface(new ShowSourceJs(), "source");
-
-        webView.loadUrl(url);
-    }
-
-    class MyWebViewCallback implements IArea.WebViewCallback {
-
-        @Override
-        public void onProgressChanged(int newProgress) {
-            //河南理工大学教务兼容性处理
-            if (webView.getUrl()!=null&&webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
-                webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
-            }
-        }
-    }
-
-    public class ShowSourceJs {
-        @JavascriptInterface
-        public void showHtml(final String content) {
-            if (TextUtils.isEmpty(content)) return;
-            putHtml(content);
-        }
-    }
-
-    /**
-    按钮事件触发获取源码操作
-    */
-    public void onBtnClicked() {
-        jsSupport.getPageHtml("source");
-    }
-```
-
-其中`putHtml(content)`是源码上传操作，下文详细讲解..
-
-### 5.源码上传(申请适配)
-
-```java
-//请求地址：
-http://www.liuzhuangfei.com/apis/area/index.php?c=Adapter&a=putSchoolHtml
-
-//请求方式:
-POST
-
-//请求参数：关键字
-//school:学校全称
-//url：地址
-//html：源码
-school
-url
-html
-
-//返回结果：
-{
-    "code":200,
-    "msg":"成功"
-}
-```
-
-详细使用案例参见[upload_request](upload_request.md)
-
-### 6.获取适配公告
-
-```java
-//请求地址：
-http://www.liuzhuangfei.com/timetable/index.php?c=Timetable&a=getValue
-
-//请求方式:
-POST
-
-//请求参数：传入固定值
-id:1f088b55140a49e101e79c420b19bce6
-
-//返回结果：
-{
-    "code":200,
-    "msg":"成功",
-    "data":{
-        "id":"1f088b55140a49e101e79c420b19bce6",
-        "value":"嗨!适配平台的后台管理页面没有开发完毕，并且v1.0.9的源码收集模块也存在Bug，所以适配进度会慢一点，预计一周后开始大范围适配，感谢你们的支持，另外注意：已经适配过的学校就不需要再申请适配了！
-上传源码或解析过程中出现问题请联系1193600556@qq.com"
-    }
-}
-```
-
-
-返回结果中可能存在html标签，所以显示的时候不要当作纯文本显示，应该使用`Html.fromHtml(value)`
-
-```java
-CharSequence charSequence;
-String value="tip:<br/>哈哈哈这是信息!";
-if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-    charSequence = Html.fromHtml(value,Html.FROM_HTML_MODE_LEGACY);
-} else {
-    charSequence = Html.fromHtml(value);
-}
-
-display.setText(charSequence);
-```
-
-Retrofit简单演示如下：
-
-```java
-  public interface TimetableService {
-
-    @POST(UrlContacts.URL_GET_VALUE)
-    @FormUrlEncoded
-    Call<ObjResult<ValuePair>> getValue(@Field("id") String id);
- }
-```
-
-然后调用即可
-```java
-    public static void getValue(Context context, String id,Callback<ObjResult<ValuePair>> callback) {
-        TimetableService timetableService = ApiUtils.getRetrofit(context)
-                .create(TimetableService.class);
-        Call<ObjResult<ValuePair>> call=timetableService.getValue(id);
-        call.enqueue(callback);
-    }
-```
+不管选择哪种方式，都必须向作者报备，申请通过后作者会将接入文档回复给你
 
 ## 申请成为适配者
+
+无门槛申请，但是如果申请后长时间不适配则可能被取消适配资格!
 
 > 随着用户提交的源码增多，以我一人之力肯定不能适配这么多的学校，所以邀请开发者参与适配。适配用到的语言是Js，但是逻辑都很简单，就是正则匹配到结果后返回，不会的话也没问题，我相信你可以通过我的文档以及各种各样的的案例学会它
 
