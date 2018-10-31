@@ -26,7 +26,8 @@
 
 - [解析API](#解析API)
     - [基本方法](#基本方法)
-    - [经典案例](#经典案例)
+    - [经典案例1-URP教务](#经典案例1-URP教务)
+    - [经典案例2-强智教务](#经典案例2-强智教务)
 
 - [授权列表](#授权列表)
 
@@ -41,6 +42,8 @@
 [课表控件](https://github.com/zfman/TimetableView)
 
 ## 申请授权流程
+
+> 如果你想将本功能接入到自己的项目中，需要向开发者提出申请!
 
 以邮件的形式向作者邮箱`119360556@qq.com`提出申请
 
@@ -78,9 +81,8 @@ Ps:xxx是姓名
 
 ## 申请成为适配者
 
-无门槛申请，但是如果申请后长时间不适配则可能被取消适配资格!
-
 > 随着用户提交的源码增多，以我一人之力肯定不能适配这么多的学校，所以邀请开发者参与适配。适配用到的语言是Js，但是逻辑都很简单，就是正则匹配到结果后返回，不会的话也没问题，我相信你可以通过我的文档以及各种各样的的案例学会它
+> 你可以申请参与学校的适配，无门槛申请，但是如果申请后长时间不适配则可能被取消适配资格!
 
 那么如何适配呢？
 
@@ -110,27 +112,9 @@ Ps:xxx是姓名
 
 ### 3.编码控制台
 
-顶栏是按钮区，依次为模式选项按钮组、运行选项按钮组、本地记录按钮组
-
-模式选项按钮组：
-
-- 编码模式：两列，左侧为源码区，右侧是编码区，比例4：6
-- 标准模式：三列，左侧是源码区，中间是编码区，右侧是调试区，比例3：4：3
-- 调试模式：两列，左侧是编码区，右侧是调试区，比例6：4
-
-运行选项按钮组：
-
-- 运行程序：调试面板会显示解析的结果，用作调试
-- 发布程序：保存并发布，发布后对用户可见
-
-本地记录按钮组：
-
-- 暂存本地：暂时存到浏览器内
-- 恢复最近的本地记录：从本地恢复最近保存的记录
+左侧编码区，右侧调试区，选择一个测试用例，在【源码参见】处可以看到这个测试用例的具体信息，通过对该用例页面的分析编写解析函数，点击调试程序，会模拟显示出程序的执行结果，多个用例调试均无误后，可以在功能菜单中选择发布程序按钮，此时所有用户都可以搜索到该校并使用该Js对课程解析
 
 ![Alt](img/adapter_img3.png)
-
-进入编码控制台后，首先在源码区选择一个源码作为测试用例，然后就可以开始解析了...
 
 ## 解析API
 
@@ -196,7 +180,16 @@ function parsePersonal(html){
 - `_build(name,teacher,weeks,day,start,step,room)`：构建一个课程项，该函数返回一个数组
 - `_getResult(totalArray)`:将totalArray转化为字符串
 
-### 经典案例
+基本流程是这样的：
+
+- 先把包含了课程的那部分提取出来
+- 对每行、每列处理，发现数据后将数据提取处理
+- 对数据进行清洗，取出标签、括号、空格之类的东西
+- 将结果返回
+
+如果解析时某个属性为空，尽量不要设为空，比如有个课程没有教室信息，那么你可以设置为"未知"，否则可能会被App忽略掉
+
+### 经典案例1-URP教务
 
 河南理工大学源码参见[13e431ca504e406f09a304229b32b96f.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=13e431ca504e406f09a304229b32b96f.txt)
 
@@ -537,6 +530,361 @@ day	4
 start	3
 step	2
 room	2号教学楼2405
+```
+
+### 经典案例2-强智教务
+
+山东科技大学源码参见[60e2034e278ccc816234b7566174c553.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=60e2034e278ccc816234b7566174c553.txt)
+
+```java
+/*
+注意事项:
+1.不得使用//来注释
+2.授权作者发布
+3.保留你的署名权
+4.出现问题请联系作者QQ:1193600556
+*/
+
+/*
+解析的入口，必须为该方法名和参数列表
+tag:标签，用来标记解析的类型，比如可以设置两种解析方法：个人课表和专业课表，
+那么需要在此处根据标签值进行解析方法的选择
+*/
+function parse(tag){
+	if(tag=="我的课表->学期理论课表") parsePersonal(window.sa.getHtml());
+}
+
+/*
+获取标签入口，必须为该方法名和参数列表
+*/
+function getTagList(){
+	var array=new Array();
+	array.push("我的课表->学期理论课表");
+	window.sa.forTagResult(array);
+}
+
+function parsePersonal(html){
+	/*将包含课表内容的HTML截取出来*/
+	var contentReg=/<table.*?id=\"kbtable\".*?>[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/g;
+	var result=contentReg.exec(html);
+	if(result==null) {
+		window.sa.forResult(null);
+		return;
+	}
+	/*行的正则*/
+	var trReg=/<tr.*?>([\s\S]*?)<\/tr>/g;
+	var r=null;/*每行的匹配结果*/
+
+	var tdReg=/<td.*?>([\s\S]*?)<\/td>/g;
+	var tdRes=null;
+	var tdDivReg=/<div.*?class=\"kbcontent\".*?>(.*?)<br><font title=\"老师\">(.*?)<\/font><br><font title=\"周次\(节次\)\">(.*?)<\/font><br>(<font title=\"教室\">(.*?)<\/font>)?[\s\S]*?<\/div>/;
+	var tdDivReg2=/<div.*?class=\"kbcontent\".*?>(.*?)<\/div>/;
+	var tdDivRes=null;/*匹配到的每个td*/
+	var tdDivRes2=null;
+	var totalArray=new Array();/*二维数组，保存结果*/
+	var tmpRes=trReg.exec(result[1]);
+	var tdCount=1;
+	if(tmpRes==null){
+		window.sa.forResult(null);
+		return;
+	}
+	while((r=trReg.exec(result[1]))!=null){
+		if(tdCount>5) break;
+		var tr=r[1];/*每行*/
+		var day=1;
+		while((tdRes=tdReg.exec(tr))!=null){
+			if(day>7) break;
+
+			tdDivRes=tdDivReg.exec(tdRes[1]);
+			if(tdDivRes!=null){
+				var name=tdDivRes[1].replace(/\（[\d ]*?-[\d ]*?\）/g,"");
+				var teacher=tdDivRes[2];
+				var start=""+(2*tdCount-1);
+				var step="2";
+				var weeks=getWeekStr(tdDivRes[3]);
+				var room=tdDivRes[4];
+           if(room==undefined) room='未知';
+           if(tdDivRes[4]!=null){
+              room=tdDivRes[4].replace(/<font.*?>/,"");
+              room=room.replace(/<\/font>/,"");
+           }
+				totalArray.push(_build(name,teacher,weeks,day,start,step,room));
+			}
+			day++;
+		}
+		tdCount++;
+	}
+	window.sa.forResult(_getResult(totalArray));
+}
+
+/*
+将weeks解析为可理解的周次
+*/
+function getWeekStr(weekStr){
+	if(weekStr.indexOf("(周)")!=-1){
+		weekStr=weekStr.substr(0,weekStr.length-"(周)".length);
+		return splitWeeks(weekStr,0);
+	}else if(weekStr.indexOf("(双周)")!=-1){
+		weekStr=weekStr.substr(0,weekStr.length-"(双周)".length);
+		return splitWeeks(weekStr,1);
+	}else{
+		weekStr=weekStr.substr(0,weekStr.length-"(单周)".length);
+		return splitWeeks(weekStr,2);
+	}
+}
+
+/*
+对周次去掉逗号后的处理：去掉横杠
+*/
+function splitWeeks(str,type){
+	var res="";
+	if(str.indexOf("-")!=-1){
+		var splitArray3=str.split("-");
+		for(var start=parseInt(splitArray3[0]);start<=parseInt(splitArray3[1]);start++){
+			if(type==0){
+				res=res+start+" ";
+			}else if(type==1){
+				if(start%2==0){
+					res=res+start+" ";
+				}
+			}else{
+				if(start%2==1){
+					res=res+start+" ";
+				}
+			}
+		}
+	}else res=res+str+" ";
+	return res.trim();
+}
+```
+
+**运行结果**
+
+```
+forTagResult:  [我的课表->学期理论课表]
+Start parsing tag with 我的课表->学期理论课表...
+=============
+forResult:
+共22门课:
+尽量保证属性都有默认值，否则可能被忽略
+1
+name    大学物理（B）
+teacher 宋宏伟
+weeks   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+day     1
+start   1
+step    2
+room    J7-113室
+
+
+2
+name    大学英语
+teacher 徐科吉
+weeks   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+day 2
+start   1
+step    2
+room    J7-111室
+
+
+3
+name    面向对象程序设计（java)
+teacher 张峰
+weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+day     3
+start   1
+step    2
+room    J7-408室
+
+
+4
+name    大学英语
+teacher 徐科吉
+weeks   2 4 6 8 10 12 14 16 18
+day     4
+start   1
+step    2
+room    J7-104室
+
+
+5
+name    数据结构(A)
+teacher 鲁法明
+weeks   1 2 3 4 5 6 7 8 9 10 11 12 13
+day     5
+start   1
+step    2
+room    J7-309室
+
+
+6
+name    海洋环境学
+teacher 赵艳云
+weeks   1 2 3 4 5 6 7 8 9
+day 6
+start   1
+step    2
+room    J5-302室
+
+
+7
+name    信息论与编码
+teacher 贾斌
+weeks   1 2 3 4 5 6 7 8 9
+day 1
+start   3
+step    2
+room    J7-310室
+
+
+8
+name    信息安全数学基础
+teacher 梁向前
+weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
+day 2
+start   3
+step    2
+room    J7-408室
+
+
+9
+name    信息安全数学基础
+teacher	梁向前
+weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
+day     3
+start   3
+step    2
+room    J7-408室
+
+
+10
+name    大学物理（B）
+teacher 宋宏伟
+weeks   1 3 5 7 9 11 13 15 17
+day 4
+start   3
+step    2
+room    J7-105室
+
+
+11
+name    海洋环境学
+teacher	赵艳云
+weeks   1 2 3 4 5 6 7 8 9
+day	    6
+start   3
+step    2
+room    J5-302室
+
+
+12
+name    面向对象程序设计（java)
+teacher 张峰
+weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+day 1
+start   5
+step    2
+room    J7-408室
+
+
+13
+name    数据结构(A)
+teacher 鲁法明
+weeks   1 2 3 4 5 6 7 8 9 10 11 12 13
+day 2
+start   5
+step    2
+room    J7-309室
+
+
+14
+name    体育
+teacher 王峰
+weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+day     3
+start   5
+step    2
+room    JB区田径场内足球场南室
+
+
+15
+name    信息论与编码
+teacher 贾斌
+weeks   1 2 3 4 5 6 7 8 9
+day     4
+start   5
+step    2
+room    J7-310室
+
+
+16
+name    物理实验（B）
+teacher 彭延东
+weeks   12 13 14 15 16
+day 5
+start   5
+step    2
+room    物理实验室
+
+
+17
+name    西方政治思想史
+teacher 李艳萍
+weeks   10 11 12 13 14 15 16 17 18
+day 1
+start   7
+step    2
+room    J14-521室
+
+
+18
+name    形势与政策
+teacher 聂西文等
+weeks   9 10 11 12 13 14 15 16
+day	    2
+start   7
+step    2
+room    J7-113室
+
+
+19
+name    西方政治思想史
+teacher	李艳萍
+weeks   10 11 12 13 14 15 16 17 18
+day	    4
+start	7
+step    2
+room    J14-521室
+
+
+20
+name    古希腊神话与哲学
+teacher 周森林
+weeks   1 2 3 4 5 6 7 8
+day 5
+start   7
+step    2
+room    J14-421室
+
+
+21
+name    电路与电子技术(A)
+teacher	东野长磊
+weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
+day     2
+start   9
+step    2
+room    J7-315室
+
+
+22
+name    电路与电子技术(A)
+teacher 东野长磊
+weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
+day     4
+start   9
+step    2
+room    J7-315室
 ```
 
 ## 授权列表
