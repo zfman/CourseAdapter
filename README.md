@@ -28,8 +28,10 @@
 
 - [解析API](#解析API)
     - [基本方法](#基本方法)
+    - [对信息不全的处理](#对信息不全的处理)
     - [经典案例1-URP教务](#经典案例1-URP教务)
     - [经典案例2-强智教务](#经典案例2-强智教务)
+    - [经典案例3-正方教务](#经典案例3-正方教务)
 
 - [授权列表](#授权列表)
 
@@ -191,9 +193,16 @@ function parsePersonal(html){
 
 如果解析时某个属性为空，尽量不要设为空，比如有个课程没有教室信息，那么你可以设置为"未知"，否则可能会被App忽略掉
 
+### 对信息不全的处理
+
+如果课程确实某个属性，可以使用以下方式处理：
+
+- 默认值：day、start、step的默认值分别为"7","1","4",weeks的默认值为1-20的所有周次，空格分隔
+- 课程名后面加上说明文字`(无时间课程，请自行修改上课时间)`，比如体育课没有时间，那么课程名应该为`体育课(无时间课程，请自行修改上课时间)`
+
 ### 经典案例1-URP教务
 
-河南理工大学源码参见[13e431ca504e406f09a304229b32b96f.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=13e431ca504e406f09a304229b32b96f.txt)
+河南理工大学源码参见[4f948987401e0ab21dbb698e74a1d0d5.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=4f948987401e0ab21dbb698e74a1d0d5.txt)
 
 ```java
 /*
@@ -207,6 +216,7 @@ function parse(tag){
 
 /*
 获取标签入口，必须为该方法名和参数列表
+多个标签使用空格分隔
 */
 function getTagList(){
 	var array=new Array();
@@ -247,12 +257,78 @@ function parsePersonal(html){
 			array.push(val);
 		}
 		if(array.length>8){
-			var a=_build(array[2],array[7],getWeekStr(array[11]),array[12],getStart(array[13]),array[14],array[16]+array[17]);
-			totalArray.push(a);
-			preArray=a;
+        	var name=array[2];
+        	var teacher=array[7];
+           var weeks=getWeekStr(array[11]);
+           var change=0;
+           if(array[11]==""){
+              weeks=getWeekStr("1-20周");
+           }
+           var day=array[12];
+           if(day=="") {
+              day="7";
+              change=1;
+           }
+
+           var start=getStart(array[13]);
+           if(start=="") {
+              start="1";
+              change=1;
+           }
+
+           var step=array[14];
+           if(step=="") {
+              step="4";
+              change=1;
+           }
+
+           var room=array[16]+array[17];
+           if(room=="") {
+              room="未知";
+              change=1;
+           }
+           if(change==1){
+              name+="(无时间课程，请自行修改上课时间)";
+           }
+
+				var a=_build(name,teacher,weeks,day,start,step,room);
+				totalArray.push(a);
+				preArray=a;
 		}else{
-			var a=_build(preArray[0],preArray[1],getWeekStr(array[0]),array[1],getStart(array[2]),array[3],array[5]+array[6]);
-			totalArray.push(a);
+        var name=preArray[0];
+        	var teacher=preArray[1];
+           var weeks=getWeekStr(array[0]);
+           var change=0;
+           if(weeks=="") weeks=getWeekStr("1-20");;
+           var day=array[1];
+           if(day=="") {
+              day="7";
+              change=1;
+           }
+
+           var start=getStart(array[2]);
+           if(start=="") {
+              start="1";
+              change=1;
+           }
+
+           var step=array[3];
+           if(step=="") {
+              step="4";
+              change=1;
+           }
+
+           var room=array[5]+array[6];
+           if(room=="") {
+              room="未知";
+              change=1;
+           }
+           if(change==1){
+              name+="(无时间课程，请自行修改上课时间)";
+           }
+
+				var a=_build(name,teacher,weeks,day,start,step,room);
+				totalArray.push(a);
 		}
 	}
 
@@ -305,234 +381,8 @@ function splitWeeks(str){
 }
 ```
 
-**运行结果**
 
-在控制台上的运行结果如下，如果课程的关键信息(day、start、step、weeks)为空的话就会被过滤掉，这一点要注意到
-
-```
-forTagResult:  [个人课表]
-Start parsing tag with 个人课表...
-=============
-forResult:
-共22门课(实际运行中课程信息不全的会被忽略):
-1
-name	热工基础与应用
-teacher	盛伟*
-weeks	11 12 13 14 15 16
-day	3
-start	3
-step	2
-room	机械综合楼305
-
-2
-name	热工基础与应用
-teacher	盛伟*
-weeks	10 11 12 13 14 15 16
-day	4
-start	9
-step	2
-room	机械综合楼305
-
-
-3
-name	电路史诗
-teacher	韩素敏*
-weeks
-day
-start
-step
-room
-
-
-4
-name	人机工程学
-teacher	任卫红*
-weeks	10 11 12 13 14 15 16
-day	4
-start	1
-step	2
-room	机械综合楼305
-
-
-5
-name	人机工程学
-teacher	任卫红*
-weeks	10 11 12 13 14 15 16
-day	1
-start	9
-step	2
-room	理化综合楼303
-
-
-6
-name	液压与气压传动
-teacher	刘俊利*
-weeks	10 11 12 13 14 15 16
-day	1
-start	1
-step	2
-room	3号教学楼3501
-
-
-7
-name	液压与气压传动
-teacher	刘俊利*
-weeks	10 11 12 13 14 15 16
-day	5
-start	1
-step	2
-room	理化综合楼305
-
-
-8
-name	机械设计课程设计
-teacher	张会端*
-weeks
-day
-start
-step
-room
-
-
-9
-name	电工电子技术训练b
-teacher	史祥翠*
-weeks
-day
-start
-step
-room
-
-
-10
-name	可编程控制器原理
-teacher	陈春朝*
-weeks	4 5 6 7 8 9 10
-day	3
-start	3
-step	2
-room	2号教学楼2310
-
-
-11
-name	可编程控制器原理
-teacher	陈春朝*
-weeks	4 5 6 7 8 9
-day	5
-start	3
-step	2
-room	2号教学楼2210
-
-
-12
-name	机械工程控制基础
-teacher	高国富*
-weeks	6 7 10 11 12 13 14 15 16
-day	2
-start	9
-step	2
-room	机械综合楼102
-
-
-13
-name	机械工程控制基础
-teacher	高国富*
-weeks	6 7 10 11 12 13 14 15 16
-day	4
-start	5
-step	2
-room	机械综合楼102
-
-
-14
-name	形势与政策-4
-teacher	王威*
-weeks	10
-day	6
-start	5
-step	4
-room	理化综合楼205
-
-
-15
-name	机械设计a
-teacher	张会端*
-weeks	1 2 3 4 5 6 7 10 11 12 13 14 15
-day	1
-start	3
-step	2
-room	3号教学楼3505
-
-
-16
-name	机械设计a
-teacher	张会端*
-weeks	13 14 15
-day	2
-start	1
-step	2
-room	理化综合楼303
-
-
-17
-name	机械设计a
-teacher	张会端*
-weeks	1 2 3 4 5 6 7 10 11 12 13 14 15
-day	3
-start	1
-step	2
-room	理化综合楼303
-
-
-18
-name	毛泽东思想和中国特色社会主义理论体系概论
-teacher	成小明*
-weeks	1 2 3 4 5 6 7 10 11
-day	1
-start	5
-step	2
-room	机械综合楼305
-
-
-19
-name	毛泽东思想和中国特色社会主义理论体系概论
-teacher	成小明*
-weeks	1 2 3 4 5 6 7 10 11
-day	3
-start	5
-step	2
-room	机械综合楼305
-
-
-20
-name	毛泽东思想和中国特色社会主义理论体系概论
-teacher	成小明*
-weeks	1 2 3 4 5 6 7 10 11 12
-day	5
-start	5
-step	2
-room	机械综合楼305
-
-
-21
-name	极限配合与测量技术基础
-teacher	赵明利*
-weeks	6 7 10 11 12 13 14 15 16
-day	2
-start	3
-step	2
-room	2号教学楼2405
-
-
-22
-name	极限配合与测量技术基础
-teacher	赵明利*
-weeks	6 7 10 11 12 13 14 15 16
-day	4
-start	3
-step	2
-room	2号教学楼2405
-```
+[经典案例1-运行结果](经典案例1-运行结果.md)
 
 ### 经典案例2-强智教务
 
@@ -660,234 +510,271 @@ function splitWeeks(str,type){
 }
 ```
 
-**运行结果**
+[经典案例2-运行结果](经典案例2-运行结果.md)
 
+### 经典案例3-正方教务
+
+青岛理工大学琴岛学院源码参见[d7b636e7245f08c566473f29bf5d2fac.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=d7b636e7245f08c566473f29bf5d2fac.txt)
+
+由于rowspan的存在，导致解析正方教务时获取星期较难,具体实现原理代码很详细
+
+```java
+/*
+   由于rowspan的存在，不能根据每行中的td的在该行中的计数来表示上课的星期，
+   对每行、每列来说，读到了一个单元格，假设当前的tdCount=1，
+   检测一下dayFlagArray[tdCount]的值有没有覆盖到当前行trCount，
+   如果覆盖到了当前行，那么说明读取到的这个单元格并不是tdCount列，
+   tdCount++，继续检测下一个单元格有没有被覆盖，如果没有被覆盖，则说明
+   读取到的单元格内容是tdCount列，此时需要获取该单元格的rowspan属性，更新
+   dayFlagArray[tdCount]的值
+   */
 ```
-forTagResult:  [我的课表->学期理论课表]
-Start parsing tag with 我的课表->学期理论课表...
-=============
-forResult:
-共22门课:
-尽量保证属性都有默认值，否则可能被忽略
-1
-name    大学物理（B）
-teacher 宋宏伟
-weeks   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-day     1
-start   1
-step    2
-room    J7-113室
+
+```java
+/*
+注意事项:
+1.不得使用//来注释
+2.授权作者发布
+3.保留你的署名权
+4.出现问题请联系作者QQ:1193600556
+*/
+
+/*
+解析的入口，必须为该方法名和参数列表
+tag:标签,用来标记解析的类型.
+比如可以设置两种解析方法：个人课表和专业课表,那么需要在此处根据标签值进行解析方法的选择
+获取输入源码:window.sa.getHtml()
+*/
+function parse(tag){
+   if(tag=="学生课表->表格模式") parsePersonal(window.sa.getHtml());
+}
+
+/*
+获取标签入口,必须为该方法名和参数列表
+*/
+function getTagList(){
+   var array=new Array();
+   window.sa.info("调、停信息暂未解析!");
+   array.push("学生课表->表格模式");
+   window.sa.forTagResult(array);
+}
+
+/*
+解析个人课表.
+返回结果使用:window.sa.forResult(_getResult(totalArray))
+未发现匹配:window.sa.forResult(null)
+创建一个课程项:var itemArray=_build(name,teacher,weeks,day,start,step,room);
+参数均为String,weeks:以空格分隔每个周次,如1 3 5 7
+*/
+function parsePersonal(html){
+   /*二维数组,保存结果*/
+   var totalArray=new Array();
+
+   /*完善此处代码*/
+   /*将包含课表内容的HTML截取出来*/
+	var contentReg=/<table.*?id=\"Table6\".*?>[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/g;
+	var result=contentReg.exec(html);
+	if(result==null) {
+		window.sa.forResult(null);
+		return;
+	}
+	/*行的正则*/
+	var trReg=/<tr.*?>([\s\S]*?)<\/tr>/g;
+	var r=null;/*每行的匹配结果*/
 
 
-2
-name    大学英语
-teacher 徐科吉
-weeks   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-day 2
-start   1
-step    2
-room    J7-111室
+	var tdRes=null;
+	var tdDivRes=null;
+   var fontRes=null;
 
+   trReg.exec(result[1]);
+   trReg.exec(result[1]);
+   var trCount=1;
 
-3
-name    面向对象程序设计（java)
-teacher 张峰
-weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-day     3
-start   1
-step    2
-room    J7-408室
+   /*
+   一个一维数组，存储的是每列当前覆盖的最大的行
+   */
+   var dayFlagArray=new Array(9);
+   for(var f=0;f<dayFlagArray.length;f++){
+      dayFlagArray[f]=0;
+   }
 
+   /*
+   由于rowspan的存在，不能根据每行中的td的在该行中的计数来表示上课的星期，
+   对每行、每列来说，读到了一个单元格，假设当前的tdCount=1，
+   检测一下dayFlagArray[tdCount]的值有没有覆盖到当前行trCount，
+   如果覆盖到了当前行，那么说明读取到的这个单元格并不是tdCount列，
+   tdCount++，继续检测下一个单元格有没有被覆盖，如果没有被覆盖，则说明
+   读取到的单元格内容是tdCount列，此时需要获取该单元格的rowspan属性，更新
+   dayFlagArray[tdCount]的值
+   */
+   while((r=trReg.exec(result[1]))!=null){
+      var tdContentReg=/(.*?)<br>(.*?)<br>(.*?)<br>(.*?)<br>/;
+      var tdContentRes=null;
+      var tdReg=/<td.*?>(.*?)<\/td>/g;
+      var rowspanReg=/<td.*?rowspan="(.*?)".*?>.*?<\/td>/g;
+      var start_end_regex=/(.*?)\((.*?)\)/;
+      var tdCount=1;
+      var s="";
+      for(var f=0;f<dayFlagArray.length;f++){
+        s+=dayFlagArray[f]+":";
+   		}
 
-4
-name    大学英语
-teacher 徐科吉
-weeks   2 4 6 8 10 12 14 16 18
-day     4
-start   1
-step    2
-room    J7-104室
+      while((tdRes=tdReg.exec(r[1]))!=null){
+         if(tdRes!=null){
+            var rowspanRes=rowspanReg.exec(tdRes[0]);
+            var rowspan=1;
+            if(rowspanRes!=null){
+               rowspan=rowspanRes[1];
+            }
+            while(tdCount<=9){
+               if(trCount>dayFlagArray[tdCount-1]){
+                  dayFlagArray[tdCount-1]=trCount+parseInt(rowspan)-1;
+                  break;
+                }else tdCount++;
+             }
 
+            if(tdRes[1]!="&nbsp;"){
+               var tdContentArray=tdRes[1].split("<br><br><br>");
+               for(var m=0;tdContentArray!=null&&m<tdContentArray.length;m++){
 
-5
-name    数据结构(A)
-teacher 鲁法明
-weeks   1 2 3 4 5 6 7 8 9 10 11 12 13
-day     5
-start   1
-step    2
-room    J7-309室
+                  var tdContent=tdContentArray[m];
+                  if(m!=tdContentArray.length-1) tdContent+="<br>";
+                  if((tdContentRes=tdContentReg.exec(tdContent))!=null){
 
+               		var name=tdContentRes[1];
+               		var weeks_start_end=tdContentRes[2];
+           	   		 var teacher=tdContentRes[3];
+                  var room=tdContentRes[4];
+                  var weekStr="";
+            	    var start_end_str="";
+                  var weeks="";
+                  var start_end_res=start_end_regex.exec(weeks_start_end);
+                  if(start_end_res!=null){
+                     weekStr=start_end_res[1];
+                     weeks=splitWeeks2(weekStr);
+                     start_end_str=start_end_res[2];
+                  }
+                  var start="0";
+                  var step="0";
+                  var start_end_array=start_end_str.split(",");
+                  if(start_end_array.length>=2){
+                     start=start_end_array[0];
+                     step=start_end_array[start_end_array.length-1]-start+1;
+                  }
 
-6
-name    海洋环境学
-teacher 赵艳云
-weeks   1 2 3 4 5 6 7 8 9
-day 6
-start   1
-step    2
-room    J5-302室
+                  name=name.replace(/\(.*?\)/g,"");
+                  weeks=weeks.trim();
+                  totalArray.push(_build(name,teacher,weeks,tdCount-2,start,step,room));
+               }
+              }
+            }
+         }
+         tdCount++;
+      }
+      trCount++;
+   }
 
+   /*
+   解析无时间的课程
+   */
+   var noTimeReg=/<table.*?id=\"DataGrid1\".*?>[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/;
+	var noTimeRes=noTimeReg.exec(html);
+	if(noTimeRes!=null) {
+     trReg.exec(noTimeRes[1]);
+		while((r=trReg.exec(noTimeRes[1]))!=null){
+        	var name="";
+          var teacher="";
+          var weekStr="";
+           var weeks="";
+          var room="";
 
-7
-name    信息论与编码
-teacher 贾斌
-weeks   1 2 3 4 5 6 7 8 9
-day 1
-start   3
-step    2
-room    J7-310室
+          tdRes=tdReg.exec(r[1]);
+        	if(tdRes!=null) name=tdRes[1];
 
+           tdRes=tdReg.exec(r[1]);
+        	if(tdRes!=null) teacher=tdRes[1];
 
-8
-name    信息安全数学基础
-teacher 梁向前
-weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
-day 2
-start   3
-step    2
-room    J7-408室
+           tdReg.exec(r[1]);
+           tdRes=tdReg.exec(r[1]);
+        	if(tdRes!=null) weekStr=tdRes[1];
 
+           tdRes=tdReg.exec(r[1]);
+        	if(tdRes!=null) room=tdRes[1];
 
-9
-name    信息安全数学基础
-teacher	梁向前
-weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
-day     3
-start   3
-step    2
-room    J7-408室
+           if(name=="&nbsp;") name="(无时间课程，请自行修改上课时间)";
+           else name+="(无时间课程，请自行修改上课时间)";
 
+           if(teacher=="&nbsp;") teacher="未知";
+           if(room=="&nbsp;") room="未知";
+           if(weekStr=="&nbsp;") weeks=splitWeeks2("1-20");
+           else weeks=splitWeeks2(weekStr);
 
-10
-name    大学物理（B）
-teacher 宋宏伟
-weeks   1 3 5 7 9 11 13 15 17
-day 4
-start   3
-step    2
-room    J7-105室
+           weeks=weeks.trim();
+           totalArray.push(_build(name,teacher,weeks,7,1,4,room));
+     }
+	}
 
+   window.sa.forResult(_getResult(totalArray));
+}
 
-11
-name    海洋环境学
-teacher	赵艳云
-weeks   1 2 3 4 5 6 7 8 9
-day	    6
-start   3
-step    2
-room    J5-302室
+/*
+去掉单双周
+*/
+function getWeekStr(weekStr){
+   if(weekStr=='') return '';
+	if(weekStr.indexOf("单")!=-1){
+		weekStr=weekStr.substr(0,weekStr.length-"单".length);
+		return splitWeeks(weekStr,2);
+	}else if(weekStr.indexOf("双")!=-1){
+		weekStr=weekStr.substr(0,weekStr.length-"双".length);
+		return splitWeeks(weekStr,1);
+	}else{
+      weekStr=weekStr.substr(0,weekStr.length);
+		return splitWeeks(weekStr,0);
+	}
+ }
 
-
-12
-name    面向对象程序设计（java)
-teacher 张峰
-weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-day 1
-start   5
-step    2
-room    J7-408室
-
-
-13
-name    数据结构(A)
-teacher 鲁法明
-weeks   1 2 3 4 5 6 7 8 9 10 11 12 13
-day 2
-start   5
-step    2
-room    J7-309室
-
-
-14
-name    体育
-teacher 王峰
-weeks   4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-day     3
-start   5
-step    2
-room    JB区田径场内足球场南室
-
-
-15
-name    信息论与编码
-teacher 贾斌
-weeks   1 2 3 4 5 6 7 8 9
-day     4
-start   5
-step    2
-room    J7-310室
-
-
-16
-name    物理实验（B）
-teacher 彭延东
-weeks   12 13 14 15 16
-day 5
-start   5
-step    2
-room    物理实验室
-
-
-17
-name    西方政治思想史
-teacher 李艳萍
-weeks   10 11 12 13 14 15 16 17 18
-day 1
-start   7
-step    2
-room    J14-521室
-
-
-18
-name    形势与政策
-teacher 聂西文等
-weeks   9 10 11 12 13 14 15 16
-day	    2
-start   7
-step    2
-room    J7-113室
-
-
-19
-name    西方政治思想史
-teacher	李艳萍
-weeks   10 11 12 13 14 15 16 17 18
-day	    4
-start	7
-step    2
-room    J14-521室
-
-
-20
-name    古希腊神话与哲学
-teacher 周森林
-weeks   1 2 3 4 5 6 7 8
-day 5
-start   7
-step    2
-room    J14-421室
-
-
-21
-name    电路与电子技术(A)
-teacher	东野长磊
-weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
-day     2
-start   9
-step    2
-room    J7-315室
-
-
-22
-name    电路与电子技术(A)
-teacher 东野长磊
-weeks   6 7 8 9 10 11 12 13 14 15 16 17 18
-day     4
-start   9
-step    2
-room    J7-315室
+/*
+将周次字符串解析为上课周次，处理逗号
+*/
+function splitWeeks2(newWeeks){
+   var newWeekStr='';
+	if(newWeeks.indexOf(",")!=-1){
+		var splitArray=newWeeks.split(",");
+		for(var i=0;i<splitArray.length;i++){
+			newWeekStr+=getWeekStr(splitArray[i]);
+		}
+	}else newWeekStr=getWeekStr(newWeeks);
+	return newWeekStr;
+}
+/*
+对周次去掉逗号后的处理：去掉横杠
+*/
+function splitWeeks(str,type){
+	var res="";
+	if(str.indexOf("-")!=-1){
+		var splitArray3=str.split("-");
+		for(var start=parseInt(splitArray3[0]);start<=parseInt(splitArray3[1]);start++){
+			if(type==0){
+				res=res+start+" ";
+			}else if(type==1){
+				if(start%2==0){
+					res=res+start+" ";
+				}
+			}else{
+				if(start%2==1){
+					res=res+start+" ";
+				}
+			}
+		}
+	}else res=res+str+" ";
+	return res;
+}
 ```
+
+[经典案例3-运行结果](经典案例3-运行结果.md)
+
 
 ## 授权列表
 
