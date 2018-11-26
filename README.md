@@ -205,19 +205,10 @@ function parsePersonal(html){
 河南理工大学源码参见[4f948987401e0ab21dbb698e74a1d0d5.txt](http://www.liuzhuangfei.com/apis/area/public/htmlsource.html?filename=4f948987401e0ab21dbb698e74a1d0d5.txt)
 
 ```java
-/*
-解析的入口，必须为该方法名和参数列表
-tag:标签，用来标记解析的类型，比如可以设置两种解析方法：个人课表和专业课表，
-那么需要在此处根据标签值进行解析方法的选择
-*/
 function parse(tag){
 	if(tag=="个人课表") parsePersonal(window.sa.getHtml());
 }
 
-/*
-获取标签入口，必须为该方法名和参数列表
-多个标签使用空格分隔
-*/
 function getTagList(){
 	var array=new Array();
 	array.push("个人课表");
@@ -225,114 +216,63 @@ function getTagList(){
 }
 
 function parsePersonal(html){
-
-	/*将包含课表内容的HTML截取出来*/
-	var contentReg=/<table.*?class=\"displayTag\".*?>[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/g;
-	/*有两个匹配项，需要的内容在第2个里，所以忽略第1个匹配到的内容*/
-	contentReg.exec(html);
+   var totalArray=new Array();
+	var contentReg=re_table_cls("displayTag");
+	var result0=contentReg.exec(html);
+   if(!sys_check(result0)) return;
+   
 	var result=contentReg.exec(html);
-
-	if(result==null) {
-		window.sa.forResult(null);
-		return;
-	}
-
-	/*行的正则*/
-	var trReg=/<tr.*?>([\s\S]*?)<\/tr>/g;
-	var r=null;/*每行的匹配结果*/
-
-	var tdReg=/<td.*?>([\s\S]*?)<\/td>/g;/*每个td的正则*/
-	var tdRes=null;/*匹配到的每个td*/
-	var preArray=null;/*上次匹配到的一行（包含课程名的行）*/
-	var totalArray=new Array();/*二维数组，保存结果*/
-
-	/*循环匹配*/
-	while((r=trReg.exec(result[1]))!=null){
-		var tr=r[1];/*每行*/
-		var array=new Array();/*保存每个td的值*/
-		while((tdRes=tdReg.exec(tr))!=null){
-			var val=tdRes[1].replace(/\s+/g,"");
+	if(!sys_check(result)) return;
+	
+   /*上次匹配到的一行（包含课程名的行）*/
+	var preArray=null;
+   re_each(re_tr(),result[1],function(r){
+		var array=new Array();
+      re_each(re_td(),r[1],function(tdRes){
+        var val=tdRes[1].replace(/\s+/g,"");
 			val=val.replace(/&nbsp;/g,"");
 			val=val.replace(/\(.*?\)/g,"");
 			array.push(val);
-		}
+      });
 		if(array.length>8){
-        	var name=array[2];
-        	var teacher=array[7];
-           var weeks=getWeekStr(array[11]);
-           var change=0;
-           if(array[11]==""){
-              weeks=getWeekStr("1-20周");
-           }
-           var day=array[12];
-           if(day=="") {
-              day="7";
-              change=1;
-           }
-
-           var start=getStart(array[13]);
-           if(start=="") {
-              start="1";
-              change=1;
-           }
-
-           var step=array[14];
-           if(step=="") {
-              step="4";
-              change=1;
-           }
-
-           var room=array[16]+array[17];
-           if(room=="") {
-              room="未知";
-              change=1;
-           }
-           if(change==1){
-              name+="(无时间课程，请自行修改上课时间)";
-           }
-
-				var a=_build(name,teacher,weeks,day,start,step,room);
+           var a=create([
+              array[2],array[7],
+              getWeekStr(array[11]),
+              array[12],getStart(array[13]),
+              array[14],array[16]+array[17]
+           ]);
 				totalArray.push(a);
 				preArray=a;
 		}else{
-        var name=preArray[0];
-        	var teacher=preArray[1];
-           var weeks=getWeekStr(array[0]);
-           var change=0;
-           if(weeks=="") weeks=getWeekStr("1-20");;
-           var day=array[1];
-           if(day=="") {
-              day="7";
-              change=1;
-           }
-
-           var start=getStart(array[2]);
-           if(start=="") {
-              start="1";
-              change=1;
-           }
-
-           var step=array[3];
-           if(step=="") {
-              step="4";
-              change=1;
-           }
-
-           var room=array[5]+array[6];
-           if(room=="") {
-              room="未知";
-              change=1;
-           }
-           if(change==1){
-              name+="(无时间课程，请自行修改上课时间)";
-           }
-
-				var a=_build(name,teacher,weeks,day,start,step,room);
+           var a=create([
+              preArray[0],preArray[1],
+              getWeekStr(array[0]),
+              array[1],getStart(array[2]),
+              array[3],array[5]+array[6]
+           ]);
 				totalArray.push(a);
 		}
-	}
-
+   });
 	window.sa.forResult(_getResult(totalArray));
+}
+
+function create(array){
+   var isLack=sys_check_lack([
+      array[2],array[3],
+      array[4],array[5]
+   ]);
+   var name=sys_val(array[0],"未知");
+   var teacher=sys_val(array[1],"未知");
+   var weeks=sys_val(array[2],getWeekStr("1-20周"));
+   var day=sys_val(array[3],"7");
+   var start=sys_val(array[4],"1");
+   var step=sys_val(array[5],"4");
+   var room=sys_val(array[6],"未知");
+   if(isLack&&name.indexOf("无时间课程")==-1) {
+      name+="(无时间课程，请自行修改课程时间)";
+   }
+	var a=_build(name,teacher,weeks,day,start,step,room);
+	return a;
 }
 
 function getStart(startStr){
@@ -349,35 +289,10 @@ function getStart(startStr){
 将weeks解析为可理解的周次，如1,3-5周上转化为:1 3 4 5
 */
 function getWeekStr(weeks){
-/*去中文*/
-	var weeksReg=new RegExp("[^\\d-\\,]","g");
-	var newWeeks=weeks.replace(weeksReg,"");
-	var newWeeksStr="";/*结果*/
-
-	/*如果存在逗号*/
-	if(newWeeks.indexOf(",")!=-1){
-		var splitArray=newWeeks.split(",");
-		for(var i=0;i<splitArray.length;i++){
-			newWeeksStr+=splitWeeks(splitArray[i]);
-		}
-	}else newWeeksStr=splitWeeks(newWeeks);
-	return newWeeksStr;
-}
-
-/*
-对周次去掉逗号后的处理：去掉横杠
-*/
-function splitWeeks(str){
-	var res="";
-	if(str.indexOf("-")!=-1){
-		var splitArray3=str.split("-");
-		for(var start=parseInt(splitArray3[0]);start<=parseInt(splitArray3[1]);start++){
-			res=res+start+" ";
-		}
-	}else{
-		res=res+str+" ";
-	}
-	return res;
+   return sys_weekstr(weeks,function(origin){
+      var weeksReg=new RegExp("[^\\d-\\,]","g");
+		 return weeks.replace(weeksReg,"");
+   });
 }
 ```
 
