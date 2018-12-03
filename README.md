@@ -12,6 +12,8 @@
 
 **欢迎广大开发者参与学校的适配中**
 
+[怪兽课表-简洁的课表](https://www.coolapk.com/apk/com.zhuangfei.hputimetable)
+
 ## 目录
 
 - [申请成为适配者](#申请成为适配者)
