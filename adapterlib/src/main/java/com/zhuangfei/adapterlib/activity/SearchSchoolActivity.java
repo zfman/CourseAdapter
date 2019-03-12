@@ -2,6 +2,7 @@ package com.zhuangfei.adapterlib.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -12,8 +13,11 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
@@ -48,6 +52,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
 
     EditText searchEditText;
     LinearLayout loadLayout;
+    TextView versionDisplayTextView;
 
     boolean firstStatus=true;
     public static final int RESULT_CODE=10;
@@ -75,6 +80,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
         searchListView=findViewById(R.id.id_search_listview);
         searchEditText=findViewById(R.id.id_search_edittext);
         loadLayout=findViewById(R.id.id_loadlayout);
+        versionDisplayTextView=findViewById(R.id.id_version_display);
     }
 
     public void setLoadLayout(boolean isShow) {
@@ -115,10 +121,44 @@ public class SearchSchoolActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.id_copyright).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try{
+                    Intent intent = new Intent();
+                    intent.setAction("android.intent.action.VIEW");
+                    intent.setData(Uri.parse("https://github.com/zfman/CourseAdapter"));
+                    context.startActivity(intent);
+                }catch (Exception e){
+                    Toast.makeText(context,"跳转失败 https://github.com/zfman/CourseAdapter",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         String searchKey=getIntent().getStringExtra(EXTRA_SEARCH_KEY);
         if(!TextUtils.isEmpty(searchKey)){
             search(searchKey);
         }
+
+        versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try{
+                    Intent intent = new Intent();
+                    intent.setAction("android.intent.action.VIEW");
+                    intent.setData(Uri.parse("https://github.com/zfman/CourseAdapter/wiki/%E7%89%88%E6%9C%AC%E5%8F%98%E6%9B%B4"));
+                    context.startActivity(intent);
+                }catch (Exception e){}
+            }
+        });
+
+        String updateId="9f37c8171f4100a7ac585dcb702c7f64";
+        AdapterLibManager.checkUpdate(context,updateId, new OnVersionFindCallback() {
+            @Override
+            public void onNewVersionFind(int newNumber, String newVersionName, String newVersionDesc) {
+                versionDisplayTextView.setVisibility(View.VISIBLE);
+                versionDisplayTextView.setText("发现新版本lib-v"+newVersionName+" "+newVersionDesc);
+            }
+        });
     }
 
     public void onItemClicked(int i) {

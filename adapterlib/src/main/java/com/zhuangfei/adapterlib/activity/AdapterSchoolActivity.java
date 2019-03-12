@@ -187,6 +187,7 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             displayTextView.setText("预测:选择解析标签");
             AlertDialog.Builder builder = new AlertDialog.Builder(context());
             builder.setTitle("请选择解析标签");
+            builder.setCancelable(false);
             builder.setItems(tags, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {

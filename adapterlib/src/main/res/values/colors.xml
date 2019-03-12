@@ -15,4 +15,5 @@
     <color name="color_10">#99CCFF</color>
     <color name="app_line">#D3D3D3</color>
     <color name="app_dark2">#313131</color>
+    <color name="app_textview_border1">#ffac37</color>
 </resources>

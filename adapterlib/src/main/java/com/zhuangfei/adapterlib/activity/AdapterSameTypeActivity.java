@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
+import com.zhuangfei.adapterlib.utils.ViewUtils;
 
 public class AdapterSameTypeActivity extends AppCompatActivity {
 
@@ -32,6 +33,7 @@ public class AdapterSameTypeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adapter_same_type);
+        ViewUtils.setStatusTextGrayColor(this);
         inits();
     }
 

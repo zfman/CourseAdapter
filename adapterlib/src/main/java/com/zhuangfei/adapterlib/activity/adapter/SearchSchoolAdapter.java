@@ -180,7 +180,7 @@ public class SearchSchoolAdapter extends BaseAdapter {
                         if(templateModel.getTemplateTag().startsWith("custom/")){
                             schoolViewHolder.searchTitleView.setText("通用功能");
                             schoolViewHolder.schoolLayout.setVisibility(View.VISIBLE);
-                            schoolViewHolder.schoolTextView.setText("添加学校适配");
+                            schoolViewHolder.schoolTextView.setText("申请学校适配");
                             schoolViewHolder.schoolTypeTextView.setText("上传");
                         }else{
                             schoolViewHolder.searchTitleView.setText("通用功能");

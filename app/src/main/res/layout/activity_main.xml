@@ -10,7 +10,12 @@
     <Button
         android:id="@+id/id_search"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="45dp"
         android:text="打开搜索界面"/>
 
+    <Button
+        android:id="@+id/id_about"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="了解适配联盟"/>
 </LinearLayout>

@@ -10,10 +10,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/search_normal_style"
         android:gravity="center_vertical">
 
@@ -21,16 +21,17 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/ic_search2"/>
+            android:src="@drawable/ic_search2" />
+
         <EditText
             android:id="@+id/id_search_edittext"
             android:layout_width="0dp"
-            android:layout_marginLeft="5dp"
             android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:hint="搜索学校或服务站"
-            android:imeOptions="actionSearch"
             android:background="@null"
+            android:hint="搜索学校以导入"
+            android:imeOptions="actionSearch"
             android:singleLine="true"
             android:textSize="16sp" />
 
@@ -44,13 +45,28 @@
             android:textSize="15sp" />
     </LinearLayout>
 
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/id_version_display"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="发现新版本"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:background="@color/app_textview_border1"
+        android:textColor="@color/app_white"
+        android:textSize="14sp" />
+
     <LinearLayout
         android:id="@+id/id_loadlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ProgressBar
             android:layout_width="35dp"
@@ -59,16 +75,28 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="加载中.."
             android:layout_marginTop="10dp"
+            android:text="加载中.."
             android:textSize="16sp" />
     </LinearLayout>
 
     <ListView
         android:id="@+id/id_search_listview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/app_white"
         android:divider="@null"></ListView>
+
+    <TextView
+        android:id="@+id/id_copyright"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:background="@color/app_white"
+        android:gravity="center"
+        android:clickable="true"
+        android:textColor="@color/app_gray"
+        android:text="课程适配联盟 版权所有"
+        android:textSize="13sp" />
 </LinearLayout>
 

@@ -12,6 +12,7 @@ import com.zhuangfei.adapterlib.apis.model.HtmlSummary;
 import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.UserDebugModel;
+import com.zhuangfei.adapterlib.apis.model.ValuePair;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -73,6 +74,20 @@ public class TimetableRequest {
     public static void getStationById(Context context,int id,Callback<ListResult<StationModel>> callback) {
         SchoolService schoolService=ApiUtils.getRetrofitForSchool(context).create(SchoolService.class);
         Call<ListResult<StationModel>> call=schoolService.getStationById(id);
+        call.enqueue(callback);
+    }
+
+    public static void putValue(Context context, String val,Callback<ObjResult<ValuePair>> callback) {
+        TimetableService timetableService = ApiUtils.getRetrofit(context)
+                .create(TimetableService.class);
+        Call<ObjResult<ValuePair>> call = timetableService.putValue(val);
+        call.enqueue(callback);
+    }
+
+    public static void getValue(Context context, String id,Callback<ObjResult<ValuePair>> callback) {
+        TimetableService timetableService = ApiUtils.getRetrofit(context)
+                .create(TimetableService.class);
+        Call<ObjResult<ValuePair>> call=timetableService.getValue(id);
         call.enqueue(callback);
     }
 
