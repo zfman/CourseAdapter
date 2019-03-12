@@ -52,6 +52,57 @@
     }
 ```
 
+### 生成口令
+
+> 口令是一段具有一定格式的文本，通过口令可以解析出id，根据id可以从服务端获取课程
+
+```java
+    //List<ParseResult> result=ParseManager.getData();
+	String shareJson=ShareManager.getShareJson(result);
+	ShareManager.putValue(context, shareJson, new OnValueCallback() {
+		@Override
+		public void onSuccess(ValuePair pair) {
+			ShareManager.showMsg(context,ShareManager.getShareToken(pair));
+			ShareManager.shareTable(context,pair);
+		}
+	});
+```
+
+- `ShareManager.putValue(context,json,callback)`以json字符串生成32位密钥
+- `ShareManager.getShareJson(result)`将`List<ParseResult>`转化为Json字符串
+- `ShareManager.showMsg(context,msg)`显示一个Toast
+- `ShareManager.getShareToken(pair)`可以获取到生成的口令
+- `ShareManager.shareTable(context,pair)`调起分享界面
+
+生成的口令如下:
+
+```text
+Hi，你收到了来自适配联盟的课程分享！
+在此查看联盟支持的软件列表 http://t.cn/EM9fsHs
+复制这条消息，打开列表中任意软件即可导入#27ae3f8393035f70151f238c8e152ac6
+```
+
+### 导入口令
+
+>在`onResume`中监听剪切板，如果发现有粘贴的口令，则导入课程
+
+```java
+	@Override
+    protected void onResume() {
+        super.onResume();
+        //导入
+        ShareManager.getFromClip(this, new OnValueCallback() {
+            @Override
+            public void onSuccess(ValuePair pair) {
+                List<ParseResult> result=ShareManager.getShareData(pair.getValue());
+                showParseResult(result);
+            }
+        });
+    }
+```
+
+- `ShareManager.getFromClip(context,callback)`监听剪切板
+- `ShareManager.getShareData(pair.getValue())`将json字符串转化为`List<ParseResult>`
 
 ## 支持的列表
 

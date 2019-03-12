@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib;
+package com.zhuangfei.adapterlib.callback;
 
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
 

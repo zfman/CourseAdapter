@@ -11,6 +11,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AdapterLibManager.init("com.zhuangfei.adapterlibdemo","");
+        AdapterLibManager.init("123456");
     }
 }

@@ -1,13 +1,11 @@
 package com.zhuangfei.adapterlib;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
+import com.zhuangfei.adapterlib.callback.OnValueCallback;
+import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 
 /**
  * Created by Liu ZhuangFei on 2018/10/19.
@@ -20,15 +18,10 @@ public class AdapterLibManager {
     private static String libVersionName="lib-1.0";
 
     //包名和appkey
-    private static String packageName;
     private static String appKey;
 
     public static String getLibVersionName() {
         return libVersionName;
-    }
-
-    public static String getPackageName() {
-        return packageName;
     }
 
     public static String getAppKey() {
@@ -39,10 +32,7 @@ public class AdapterLibManager {
         return libVersionNumber;
     }
 
-    public static void init(String packageName,String appkey){
-        if(!TextUtils.isEmpty(packageName)){
-            AdapterLibManager.packageName=packageName;
-        }
+    public static void init(String appkey){
         if(!TextUtils.isEmpty(appkey)){
             AdapterLibManager.appKey=appkey;
         }

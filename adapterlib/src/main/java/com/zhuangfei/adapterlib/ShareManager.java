@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
+import com.zhuangfei.adapterlib.callback.OnValueCallback;
 import com.zhuangfei.adapterlib.core.ParseResult;
 
 import java.util.List;

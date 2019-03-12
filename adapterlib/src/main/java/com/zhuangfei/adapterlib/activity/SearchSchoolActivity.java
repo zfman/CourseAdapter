@@ -1,9 +1,11 @@
 package com.zhuangfei.adapterlib.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,12 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.AdapterLibManager;
-import com.zhuangfei.adapterlib.OnVersionFindCallback;
+import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
 import com.zhuangfei.adapterlib.station.StationManager;
+import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.AdapterResultV2;
@@ -280,16 +283,26 @@ public class SearchSchoolActivity extends AppCompatActivity {
         models.clear();
         allDatas.clear();
 
+        String packageMd5= PackageUtils.getPackageMd5(this);
+        String appkey=AdapterLibManager.getAppKey();
+        if(!TextUtils.isEmpty(packageMd5)&&TextUtils.isEmpty(appkey)){
+            Toast.makeText(context,"未初始化",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!TextUtils.isEmpty(key)) {
             setLoadLayout(true);
-            TimetableRequest.getAdapterSchoolsV2(this, key, new Callback<ObjResult<AdapterResultV2>>() {
+            TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, new Callback<ObjResult<AdapterResultV2>>() {
                 @Override
                 public void onResponse(Call<ObjResult<AdapterResultV2>> call, Response<ObjResult<AdapterResultV2>> response) {
                     ObjResult<AdapterResultV2> result = response.body();
                     if (result != null) {
                         if (result.getCode() == 200) {
                             showResult(result.getData(),key);
-                        } else {
+                        } else if(result.getCode()==330){
+                            showDialog(result.getMsg());
+                        }
+                        else {
                             Toast.makeText(SearchSchoolActivity.this, result.getMsg(), Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -304,6 +317,23 @@ public class SearchSchoolActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void showDialog(String msg){
+        AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                .setTitle("校验失败")
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton("我知道了", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                        if(dialogInterface!=null){
+                            dialogInterface.dismiss();
+                        }
+                    }
+                });
+        builder.create().show();
     }
 
     public void searchStation(final String key) {

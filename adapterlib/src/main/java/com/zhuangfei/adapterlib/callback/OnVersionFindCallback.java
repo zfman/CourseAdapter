@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib;
+package com.zhuangfei.adapterlib.callback;
 
 /**
  * Created by Liu ZhuangFei on 2019/3/12.

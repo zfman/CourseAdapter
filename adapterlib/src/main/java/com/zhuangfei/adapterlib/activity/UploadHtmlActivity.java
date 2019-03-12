@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.BaseResult;
@@ -168,7 +169,7 @@ public class UploadHtmlActivity extends AppCompatActivity {
                     String finalContent="";
                     finalContent+="LibVersionName:"+ AdapterLibManager.getLibVersionName()+"<br/>";
                     finalContent+="LibVersionNumber:"+ AdapterLibManager.getLibVersionNumber()+"<br/>";
-                    finalContent+="Package:"+ AdapterLibManager.getPackageName()+"<br/>";
+                    finalContent+="Package:"+ PackageUtils.getPackageName(UploadHtmlActivity.this)+"<br/>";
                     finalContent+="url:"+ webView.getUrl()+"<br/>";
                     finalContent+=content;
                     putHtml(finalContent);

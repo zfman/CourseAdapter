@@ -8,12 +8,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.AdapterLibManager;
-import com.zhuangfei.adapterlib.OnValueCallback;
-import com.zhuangfei.adapterlib.OnVersionFindCallback;
+import com.zhuangfei.adapterlib.callback.OnValueCallback;
+import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.ShareManager;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
