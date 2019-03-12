@@ -15,6 +15,40 @@
 - 加入本平台后，你可以永久免费使用本平台的服务，但是必须支持本平台格式的课程导入
 - 不想免费接入的同学可以联系`119360556@qq.com`
 
+### 申请appkey
+
+请将你的应用程序包名发送到邮箱`119360556@qq.com`，我会在一天内将appkey回复给你，接入完毕后请务必告知我，我会将你加入联盟支持的列表中。
+
+### 引入依赖库
+
+
+### 鉴权
+
+在MyApplication中进行初始化：
+```java
+	public class MyApplication extends Application {
+		@Override
+		public void onCreate() {
+			super.onCreate();
+			AdapterLibManager.init("申请的appkey");
+		}
+	}
+```
+
+设置MyApplication：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhuangfei.adapterlibdemo">
+
+    <application
+        android:name=".MyApplication">
+        <!--省略其他内容-->
+    </application>
+
+</manifest>
+```
+
 ### 搜索页面
 
 搜索页面是课程适配的入口，只要前往搜索页，然后在本页面接收返回的数据即可
@@ -26,6 +60,15 @@
 ```java
     Intent intent=new Intent(this, SearchSchoolActivity.class);
     startActivityForResult(intent,REQUEST_CODE);
+```
+
+
+默认情况下进入搜索页面是空的，当然也可以设置一个默认的关键字，进入搜索页面后立即请求，示例如下:
+
+```java
+	Intent intent=new Intent(MainActivity.this, SearchSchoolActivity.class);
+	intent.putExtra(SearchSchoolActivity.EXTRA_SEARCH_KEY,"河南理工大学");
+	startActivityForResult(intent,REQUEST_CODE);
 ```
 
 **接收解析的结果**

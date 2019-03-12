@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this, SearchSchoolActivity.class);
+                intent.putExtra(SearchSchoolActivity.EXTRA_SEARCH_KEY,"河南理工大学");
                 startActivityForResult(intent,REQUEST_CODE);
             }
         });
