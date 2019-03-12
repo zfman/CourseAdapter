@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <title>parse school</title>
+    <meta charset="UTF-8">
+    <script src=”http://libs.baidu.com/jquery/2.0.0/jquery.min.js”></script>
+    <script type="text/javascript">
+${jscontent}
+function test(){
+	return "test";
+}
+
+function _getResult(totalArray){
+		if(totalArray==null) return null;
+		var ret="";
+		for(var i=0;i<totalArray.length;i++){
+			if(totalArray[i]==null) return null;
+			for(var j=0;j<totalArray[i].length;j++){
+				ret+=totalArray[i][j];
+				if(j!=totalArray[i].length-1) ret+="$";
+			}
+			if(i!=totalArray.length-1) ret+="#";
+		}
+		return ret;
+	}
+
+	/*
+	生成一个课程项
+	*/
+	function _build(name,teacher,weeks,day,start,step,room){
+		var real=new Array();
+		real.push(name);
+		real.push(teacher);
+		real.push(weeks);
+		real.push(day);
+		real.push(start);
+		real.push(step);
+		real.push(room);
+		return real;
+	}
+
+    </script>
+</head>
+<body>
+<h3>你好，欢迎来到课程解析页面！</h3>
+<p>正在努力的递归获取源码以及解析过程中，请耐心等待...</p>
+<p>如果按钮点击无反应则说明课程解析出现问题,可以尝试联系该校的负责人(参见适配公告)或者联系开发者,QQ：1193600556</p>
+<p>该功能的版权归[怪兽课表]开发者刘壮飞所有，任何使用该功能模块的开发者必须得到授权,违者追究法律责任!<br/><a href="https://github.com/zfman/CourseAdapter">申请授权</a></p>
+</body>
+</html>

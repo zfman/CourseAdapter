@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_white"
+    android:orientation="vertical"
+    android:gravity="center_vertical">
+
+    <View
+        android:id="@+id/item_search_line2"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@color/app_gray_f0f0f0"/>
+
+    <TextView
+        android:id="@+id/id_search_title"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/app_gray"
+        android:textSize="18sp"/>
+
+    <LinearLayout
+        android:id="@+id/id_search_school_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:id="@+id/item_school_val"/>
+        <TextView
+            android:id="@+id/id_search_school_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_start_end2"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:includeFontPadding="false"
+            android:textColor="@color/app_white"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/app_line"/>
+</LinearLayout>

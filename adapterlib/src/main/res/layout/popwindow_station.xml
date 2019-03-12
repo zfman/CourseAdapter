@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:id="@+id/id_top_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:background="@drawable/border_multi_item"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textSize="15sp"
+            android:gravity="center_vertical"
+            android:textColor="@color/app_gray"
+            android:text="更多选项"/>
+
+        <TextView
+            android:id="@+id/pop_add_home"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:textSize="17sp"
+            android:text="添加到首页"/>
+        <TextView
+            android:id="@+id/pop_to_home"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:textSize="17sp"
+            android:text="服务站主页"/>
+
+        <TextView
+            android:id="@+id/pop_about"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:textSize="17sp"
+            android:gravity="center_vertical"
+            android:text="关于服务站"/>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/pop_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/border_multi_item"
+        android:gravity="center"
+        android:text="取消"/>
+</LinearLayout>

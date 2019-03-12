@@ -1,0 +1,107 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/id_station_root"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/id_station_action_bg"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:gravity="center_vertical"
+        android:background="@color/app_white_slight"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/id_web_title"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="WebView"
+            android:layout_marginRight="10dp"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/id_station_buttongroup"
+            android:layout_width="95dp"
+            android:layout_height="30dp"
+            android:background="@drawable/border_25_gray"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/id_station_more"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_weight="1">
+                <ImageView
+                    android:id="@+id/iv_station_more"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_station_about"/>
+            </LinearLayout>
+            <View
+                android:id="@+id/id_station_diver"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@color/app_gray"/>
+
+            <LinearLayout
+                android:id="@+id/id_station_close"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_weight="1">
+                <ImageView
+                    android:id="@+id/iv_station_close"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_station_back"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <android.support.v4.widget.ContentLoadingProgressBar
+        android:visibility="gone"
+        android:id="@+id/id_loadingbar"
+        style="?android:attr/android:progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:max="100"
+        android:progress="0"
+        android:layout_height="3dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <WebView
+            android:id="@+id/id_webview"
+            android:background="@color/app_white"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/id_btn_function"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:textSize="17sp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:gravity="center"
+            android:layout_marginBottom="30dp"
+            android:textColor="@color/app_white"
+            android:background="@drawable/border_25_station_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="辅助功能"/>
+    </FrameLayout>
+
+
+</LinearLayout>

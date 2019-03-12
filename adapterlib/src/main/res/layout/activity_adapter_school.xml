@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <include layout="@layout/header_upload_html"/>
+        <android.support.v4.widget.ContentLoadingProgressBar
+            android:id="@+id/id_loadingbar"
+            style="?android:attr/android:progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:max="100"
+            android:progress="0"
+            android:layout_height="4dp" />
+        <WebView
+            android:id="@+id/id_webview"
+            android:background="@color/app_white"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical|right"
+        android:background="@color/app_gray_f0f0f0">
+        <TextView
+            android:id="@+id/tv_display"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="16sp"
+            android:gravity="center_vertical"
+            android:text="未到达课表页面..."
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"/>
+
+        <TextView
+            android:id="@+id/tv_webview_parse"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:text="解析课程"
+            android:gravity="center"
+            android:textColor="@color/app_white"
+            android:background="@drawable/border_5_blue2"/>
+
+    </LinearLayout>
+
+</LinearLayout>

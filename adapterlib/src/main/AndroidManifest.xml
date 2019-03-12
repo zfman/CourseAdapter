@@ -1,0 +1,20 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhuangfei.adapterlib" >
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application>
+        <activity android:name=".activity.UploadHtmlActivity"
+            android:theme="@style/NoActionBarTheme"/>
+        <activity android:name=".activity.AdapterTipActivity"
+            android:theme="@style/NoActionBarTheme"/>
+        <activity android:name=".activity.AdapterSchoolActivity"
+            android:theme="@style/NoActionBarTheme"/>
+        <activity android:name=".activity.AdapterSameTypeActivity"
+            android:theme="@style/NoActionBarTheme"/>
+        <activity android:name=".activity.SearchSchoolActivity"
+            android:theme="@style/NoActionBarTheme"
+            android:windowSoftInputMode="stateHidden"/>
+    </application>
+
+</manifest>
