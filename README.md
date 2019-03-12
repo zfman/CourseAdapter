@@ -71,6 +71,45 @@
 
 请加QQ群：958342740
 
+## 接入文档
+
+### 搜索页面
+
+搜索页面是课程适配的入口，只要前往搜索页，然后在本页面接收返回的数据即可
+
+```java
+    public static final int REQUEST_CODE=1;
+```
+
+```java
+    Intent intent=new Intent(this, SearchSchoolActivity.class);
+    startActivityForResult(intent,REQUEST_CODE);
+```
+
+**接收解析的结果**
+
+- `ParseManager`是解析管理类，可以判断是否解析成功以及取出解析结果
+- `ParseResult`是本平台提供的课程实体类
+
+接收结果示例如下：
+
+```java
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE&&resultCode==SearchSchoolActivity.RESULT_CODE){
+            if(ParseManager.isSuccess()&&ParseManager.getData()!=null){
+                List<ParseResult> result=ParseManager.getData();
+                String str="";
+                for(ParseResult item:result){
+                    str+=item.getName()+"\n";
+                }
+                Toast.makeText(MainActivity.this,str, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+```
+
 ## 申请授权流程
 
 > 如果你想将本功能接入到自己的项目中，需要向开发者提出申请!
