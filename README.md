@@ -147,6 +147,14 @@ Hi，你收到了来自适配联盟的课程分享！
 - `ShareManager.getFromClip(context,callback)`监听剪切板
 - `ShareManager.getShareData(pair.getValue())`将json字符串转化为`List<ParseResult>`
 
+### 混淆
+
+本库没有混淆，但是引入了两个第三方库,请自行查阅资料添加混淆规则
+```gradle
+    api 'com.squareup.retrofit2:retrofit:2.0.2'
+    api 'com.squareup.retrofit2:converter-gson:2.0.2'
+```
+
 ## 支持的列表
 
 [支持的软件列表](https://github.com/zfman/CourseAdapter/wiki/%E6%94%AF%E6%8C%81%E7%9A%84%E5%88%97%E8%A1%A8)
