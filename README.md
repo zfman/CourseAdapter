@@ -47,7 +47,7 @@
 
 ### 1.登录[全国大学生课程适配平台-官网](http://www.liuzhuangfei.com/)
 
-![Alt](img/adapter_img1.png)
+![Alt](resource/img/adapter_img1.png)
 
 ### 2.个人中心
 
@@ -57,13 +57,13 @@
 - 无人认领的学校 ： 经管理员筛选后且未与用户建立绑定关系的学校会显示在这个区域，点击去认领即建立绑定关系
 - 所有适配列表 ： 所有与用户建立绑定关系的学校会显示在这个区域
 
-![Alt](img/adapter_img2.png)
+![Alt](resource/img/adapter_img2.png)
 
 ### 3.编码控制台
 
 左侧编码区，右侧调试区，选择一个测试用例，在【源码参见】处可以看到这个测试用例的具体信息，通过对该用例页面的分析编写解析函数，点击调试程序，会模拟显示出程序的执行结果，多个用例调试均无误后，可以在功能菜单中选择发布程序按钮，此时所有用户都可以搜索到该校并使用该Js对课程解析
 
-![Alt](img/adapter_img3.png)
+![Alt](resource/img/adapter_img3.png)
 
 ## 开发文档
 
