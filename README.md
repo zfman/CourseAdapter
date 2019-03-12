@@ -19,8 +19,28 @@
 
 请将你的应用程序包名发送到邮箱`119360556@qq.com`，我会在一天内将appkey回复给你，接入完毕后请务必告知我，我会将你加入联盟支持的列表中。
 
-### 引入依赖库
+### 引入依赖库 [![](https://jitpack.io/v/zfman/CourseAdapter.svg)](https://jitpack.io/#zfman/CourseAdapter)
 
+Step 1. Add the JitPack repository to your build file
+
+Add it in your root build.gradle at the end of repositories:
+
+```gradle
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+
+Step 2. Add the dependency
+
+```gradle
+	dependencies {
+	        implementation 'com.github.zfman:CourseAdapter:1.0'
+	}
+```
 
 ### 鉴权
 
