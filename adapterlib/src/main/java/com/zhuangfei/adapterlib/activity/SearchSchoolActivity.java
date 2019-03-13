@@ -304,7 +304,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
                     if (result != null) {
                         if (result.getCode() == 200) {
                             showResult(result.getData(),key);
-                        } else if(result.getCode()==330){
+                        } else if(result.getCode()>=330&&result.getCode()<=400){
                             showDialog(result.getMsg());
                         }
                         else {

@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this, SearchSchoolActivity.class);
-                intent.putExtra(SearchSchoolActivity.EXTRA_SEARCH_KEY,"河南理工大学");
                 startActivityForResult(intent,REQUEST_CODE);
             }
         });
@@ -106,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder=new AlertDialog.Builder(context)
                 .setTitle("导入成功")
+                .setCancelable(false)
                 .setMessage(sb.toString())
                 .setPositiveButton("知道了", null);
         builder.create().show();
