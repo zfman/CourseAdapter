@@ -6,6 +6,10 @@
 - 通过Js解析出课程集合
 - 申请适配（上传源码）
 
+## 参与适配
+
+- [成为开发者](https://github.com/zfman/CourseAdapter/wiki)
+
 ## 接入文档
 
 > 限时免费（截止到2019/5/1）

@@ -27,7 +27,9 @@ public interface SchoolService {
     @FormUrlEncoded
     Call<ObjResult<AdapterResultV2>> getAdapterSchoolsV2(@Field("key") String key,
                                                          @Field("package") String packageName,
-                                                         @Field("appkey") String appkey);
+                                                         @Field("appkey") String appkey,
+                                                         @Field("time") String time,
+                                                         @Field("sign") String sign);
 
     @POST(UrlContants.URL_PUT_HTML)
     @FormUrlEncoded

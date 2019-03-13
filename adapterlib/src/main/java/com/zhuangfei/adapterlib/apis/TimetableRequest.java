@@ -65,7 +65,7 @@ public class TimetableRequest {
         call.enqueue(callback);
     }
 
-    public static void getAdapterSchoolsV2(Context context,String key,String packageName,String appkey,Callback<ObjResult<AdapterResultV2>> callback) {
+    public static void getAdapterSchoolsV2(Context context,String key,String packageName,String appkey,String time,String sign,Callback<ObjResult<AdapterResultV2>> callback) {
         SchoolService schoolService=ApiUtils.getRetrofitForSchool(context).create(SchoolService.class);
         Call<ObjResult<AdapterResultV2>> call=schoolService.getAdapterSchoolsV2(key,packageName,appkey);
         call.enqueue(callback);

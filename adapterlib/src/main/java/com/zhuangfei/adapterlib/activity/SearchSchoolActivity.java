@@ -25,6 +25,7 @@ import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
 import com.zhuangfei.adapterlib.station.StationManager;
+import com.zhuangfei.adapterlib.utils.Md5Security;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
@@ -285,14 +286,18 @@ public class SearchSchoolActivity extends AppCompatActivity {
 
         String packageMd5= PackageUtils.getPackageMd5(this);
         String appkey=AdapterLibManager.getAppKey();
-        if(!TextUtils.isEmpty(packageMd5)&&TextUtils.isEmpty(appkey)){
+        String time=""+System.currentTimeMillis();
+        StringBuffer sb=new StringBuffer();
+        sb.append("time="+time);
+        String sign= Md5Security.encrypBy(sb.toString()+context.getResources().getString(R.string.md5_sign_key));
+        if(TextUtils.isEmpty(packageMd5)||TextUtils.isEmpty(appkey)){
             Toast.makeText(context,"未初始化",Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!TextUtils.isEmpty(key)) {
             setLoadLayout(true);
-            TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, new Callback<ObjResult<AdapterResultV2>>() {
+            TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, time,sign,new Callback<ObjResult<AdapterResultV2>>() {
                 @Override
                 public void onResponse(Call<ObjResult<AdapterResultV2>> call, Response<ObjResult<AdapterResultV2>> response) {
                     ObjResult<AdapterResultV2> result = response.body();
