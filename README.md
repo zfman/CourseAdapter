@@ -10,7 +10,7 @@
 
 - [成为开发者](https://github.com/zfman/CourseAdapter/wiki)
 - [版本变更](https://github.com/zfman/CourseAdapter/wiki/%E7%89%88%E6%9C%AC%E5%8F%98%E6%9B%B4)
-
+- [Demo下载](https://www.coolapk.com/apk/com.zhuangfei.adapterlibdemo)
 ## 接入文档
 
 > 限时免费（截止到2019/5/1）
