@@ -6,22 +6,23 @@
 - 通过Js解析出课程集合
 - 申请适配（上传源码）
 
-## 参与适配
+## 资源
 
 - [成为开发者](https://github.com/zfman/CourseAdapter/wiki)
+- [版本变更](https://github.com/zfman/CourseAdapter/wiki/%E7%89%88%E6%9C%AC%E5%8F%98%E6%9B%B4)
 
 ## 接入文档
 
 > 限时免费（截止到2019/5/1）
 
 - 如果需要免费使用本功能，需要加入本平台（课程适配联盟）
-- 请发送你的软件信息到邮箱`119360556@qq.com`以加入本平台，内容包括：项目名称、下载地址、姓名
+- 请发送你的软件信息到邮箱`1193600556@qq.com`以加入本平台，内容包括：项目名称、下载地址、姓名
 - 加入本平台后，你可以永久免费使用本平台的服务，但是必须支持本平台格式的课程导入
-- 不想免费接入的同学可以联系`119360556@qq.com`
+- 不想免费接入的同学可以联系`1193600556@qq.com`
 
 ### 申请appkey
 
-请将你的应用程序包名发送到邮箱`119360556@qq.com`，我会在一天内将appkey回复给你，接入完毕后请务必告知我，我会将你加入联盟支持的列表中。
+请将你的应用程序包名发送到邮箱`1193600556@qq.com`，我会在一天内将appkey回复给你，接入完毕后请务必告知我，我会将你加入联盟支持的列表中。
 
 ### 引入依赖库 [![](https://jitpack.io/v/zfman/CourseAdapter.svg)](https://jitpack.io/#zfman/CourseAdapter)
 
@@ -42,7 +43,7 @@ Step 2. Add the dependency
 
 ```gradle
 	dependencies {
-	        implementation 'com.github.zfman:CourseAdapter:1.0'
+	        implementation 'com.github.zfman:CourseAdapter:1.0.0'
 	}
 ```
 
@@ -170,6 +171,17 @@ Hi，你收到了来自适配联盟的课程分享！
 
 - `ShareManager.getFromClip(context,callback)`监听剪切板
 - `ShareManager.getShareData(pair.getValue())`将json字符串转化为`List<ParseResult>`
+
+### 取值
+
+```java
+	ShareManager.getValue(context, id, new OnValueCallback() {
+		@Override
+		public void onSuccess(ValuePair pair) {
+
+		}
+	});
+```
 
 ### 混淆
 
