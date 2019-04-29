@@ -18,4 +18,15 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:text="了解适配联盟"/>
+    <Button
+        android:id="@+id/id_once"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="一键"/>
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"></LinearLayout>
 </LinearLayout>

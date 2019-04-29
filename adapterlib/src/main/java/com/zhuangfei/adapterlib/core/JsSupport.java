@@ -2,18 +2,28 @@ package com.zhuangfei.adapterlib.core;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
+import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * js 工具类
@@ -76,6 +86,11 @@ public class JsSupport {
         webView.setWebChromeClient(new WebChromeClient() {
 
             @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                return super.onJsAlert(view, url, message, result);
+            }
+
+            @Override
             public void onProgressChanged(WebView view, final int newProgress) {
                 super.onProgressChanged(view, newProgress);
 
@@ -126,7 +141,8 @@ public class JsSupport {
     }
 
     /**
-     * 获取页面源码
+     * 获取页面源码用于判断教务类型
+     * 该方法在每次页面加载完毕都会回调一次
      * @param objName webView addJavaScriptInterface()绑定的对象
      */
     public void getPageHtmlForAdjust(String objName){
@@ -173,5 +189,118 @@ public class JsSupport {
     private void callEvaluateJavascript(String method) {
         // 调用html页面中的js函数
         webView.evaluateJavascript(method, null);
+    }
+
+    public void executeJs(String javascript) {
+        if(!TextUtils.isEmpty(javascript)){
+            webView.loadUrl("javascript:" + javascript);
+        }
+    }
+
+    public void executeLocalJsFile(String filename) {
+        if(!TextUtils.isEmpty(filename)){
+            String fff=assetFile2Str(webView.getContext(),filename);
+            AlertDialog.Builder builder=new AlertDialog.Builder(webView.getContext())
+                    .setTitle("executeLocalJsFile")
+                    .setMessage(fff)
+                    .setPositiveButton("确定",null);
+            builder.create().show();
+            webView.loadUrl("javascript:" + fff);
+        }
+    }
+
+    public void executeJsDelay(final String javascript, long delay) {
+        if(!TextUtils.isEmpty(javascript)){
+            webView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    webView.loadUrl("javascript:" + javascript);
+                }
+            },delay);
+        }
+    }
+
+    public void loadUrl(String url) {
+        if(!TextUtils.isEmpty(url)){
+            webView.loadUrl(url);
+        }
+    }
+
+    public void loadUrlDelay(final String url, long delay) {
+        if(!TextUtils.isEmpty(url)){
+            webView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    webView.loadUrl(url);
+                }
+            },delay);
+        }
+    }
+
+
+    @SuppressLint("JavascriptInterface")
+    public void injectObject(Object object, String objName){
+        webView.addJavascriptInterface(object,objName);
+    }
+
+    /**
+     * 注入script标签
+     * @param scriptUrl
+     */
+    public void injectScript(String scriptUrl){
+        String js = "var newscript = document.createElement(\"script\");";
+        js += "newscript.src=\"" + scriptUrl + "\";";
+        js += "document.scripts[0].parentNode.insertBefore(newscript,document.scripts[0]);";
+        webView.loadUrl("javascript:" + js);
+    }
+
+    public void injectScript(String scriptUrl,String onloadMethod){
+        String js = "var newscript = document.createElement(\"script\");";
+        js += "newscript.src=\"" + scriptUrl + "\";";
+        js+="newscript.onload=function(){"+onloadMethod+";}";
+        js += "document.scripts[0].parentNode.insertBefore(newscript,document.scripts[0]);";
+        webView.loadUrl("javascript:" + js);
+    }
+
+    public void clearCookies(){
+        CookieManager manager=CookieManager.getInstance();
+        manager.removeAllCookie();
+    }
+
+    /**
+     * 解析assets文件夹里面的代码,去除注释,取可执行的代码
+     * @param c context
+     * @param urlStr 路径
+     * @return 可执行代码
+     */
+    public static String assetFile2Str(Context c, String urlStr){
+        InputStream in = null;
+        try{
+            in = c.getAssets().open(urlStr);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+            String line = null;
+            StringBuilder sb = new StringBuilder();
+            do {
+                line = bufferedReader.readLine();
+                if (line != null) {
+                    sb.append(line);
+                }
+            } while (line != null);
+
+            bufferedReader.close();
+            in.close();
+
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return null;
     }
 }

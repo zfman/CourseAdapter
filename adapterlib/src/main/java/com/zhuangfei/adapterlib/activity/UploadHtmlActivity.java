@@ -1,18 +1,23 @@
 package com.zhuangfei.adapterlib.activity;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,12 +25,18 @@ import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.once.OnceRoute;
+import com.zhuangfei.adapterlib.utils.ClipUtils;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.BaseResult;
 import com.zhuangfei.adapterlib.core.IArea;
 import com.zhuangfei.adapterlib.core.JsSupport;
+
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,15 +62,22 @@ public class UploadHtmlActivity extends AppCompatActivity {
     boolean isNeedLoad = false;
 
     //选课结果
-    public static final String URL_COURSE_RESULT="https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6";
+    public static final String URL_COURSE_RESULT = "https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6";
 
     //传入的参数
-    public static final String EXTRA_URL="url";
-    public static final String EXTRA_SCHOOL="school";
+    public static final String EXTRA_URL = "url";
+    public static final String EXTRA_SCHOOL = "school";
 
     JsSupport jsSupport;
     TextView displayTextView;
-    public int nowIndex=0;
+    public int nowIndex = 0;
+    StringBuffer sb = new StringBuffer();
+
+    EditText editText;
+    EditText editor;
+
+    Queue<OnceRoute> queue = new LinkedBlockingQueue<>();
+    OnceRoute lastRoute = new OnceRoute();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +90,12 @@ public class UploadHtmlActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        titleTextView=findViewById(R.id.id_web_title);
-        helpView=findViewById(R.id.id_webview_help);
-        webView=findViewById(R.id.id_webview);
-        displayTextView=findViewById(R.id.tv_display);
+        editText = findViewById(R.id.id_edit);
+        editor=findViewById(R.id.id_editor);
+        titleTextView = findViewById(R.id.id_web_title);
+        helpView = findViewById(R.id.id_webview_help);
+        webView = findViewById(R.id.id_webview);
+        displayTextView = findViewById(R.id.tv_display);
         findViewById(R.id.id_webview_help).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,13 +119,13 @@ public class UploadHtmlActivity extends AppCompatActivity {
     private void initUrl() {
         url = getIntent().getStringExtra(EXTRA_URL);
         school = getIntent().getStringExtra(EXTRA_SCHOOL);
-        if(TextUtils.isEmpty(url)){
-            url="http://www.liuzhuangfei.com";
+        if (TextUtils.isEmpty(url)) {
+            url = "http://www.liuzhuangfei.com";
         }
-        if(TextUtils.isEmpty(school)){
-            school="WebView";
+        if (TextUtils.isEmpty(school)) {
+            school = "WebView";
         }
-        titleTextView.setText("适配-"+school);
+        titleTextView.setText("适配-" + school);
     }
 
     /**
@@ -116,14 +136,30 @@ public class UploadHtmlActivity extends AppCompatActivity {
         popup.getMenuInflater().inflate(R.menu.menu_webview, popup.getMenu());
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                if(item.getItemId()==R.id.top1){
-                    String now=webView.getUrl();
-                    if(now.indexOf("/")!=-1){
-                        int index=now.lastIndexOf("/");
-                        webView.loadUrl(now.substring(0,index)+"/xkAction.do?actionType=6");
-                    }else{
-                        webView.loadUrl(now+"/xkAction.do?actionType=6");
-                    }
+                if (item.getItemId() == R.id.top1) {
+                    // todo
+//                    String now=webView.getUrl();
+//                    if(now.indexOf("/")!=-1){
+//                        int index=now.lastIndexOf("/");
+//                        webView.loadUrl(now.substring(0,index)+"/xkAction.do?actionType=6");
+//                    }else{
+//                        webView.loadUrl(now+"/xkAction.do?actionType=6");
+//                    }
+                    OnceRoute route2 = new OnceRoute();
+                    route2.setUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
+                    String javascript2 = "var oinput=document.getElementsByTagName('input');\n" +
+                            "oinput[7].value=\"311509060128\";" +
+                            "oinput[8].value=\"509060128\";";
+                    jsSupport.executeJs(javascript2);
+                }
+                if(item.getItemId()==R.id.top2){
+                    String javascript2 = "var oinput=document.getElementsByTagName('input');\n" +
+                            "oinput[8].value=\"509060128\";\n"+
+                            "oinput[7].value=\"311509060128\";\n"+
+                            "alert(\"hide://\");\n";
+                    jsSupport.executeJs(javascript2);
+
+                    jsSupport.executeLocalJsFile("getImageSrc.js");
                 }
                 return true;
             }
@@ -132,28 +168,61 @@ public class UploadHtmlActivity extends AppCompatActivity {
         popup.show();
     }
 
-
     @SuppressLint("SetJavaScriptEnabled")
     private void loadWebView() {
-        jsSupport=new JsSupport(webView);
-        jsSupport.applyConfig(this,new MyWebViewCallback());
+        jsSupport = new JsSupport(webView);
+        jsSupport.applyConfig(this, new MyWebViewCallback());
         webView.addJavascriptInterface(new ShowSourceJs(), "source");
-        webView.loadUrl(url);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                webView.loadUrl(url);
+                sb.append(url).append("\n");
+                return true;
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if (!queue.isEmpty()&&url.equals(queue.peek().getUrl())) {
+                    Toast.makeText(UploadHtmlActivity.this, "queue:" + url + ";" + queue.size(), Toast.LENGTH_SHORT).show();
+                    OnceRoute route = queue.poll();
+//                    jsSupport.loadUrl(route.getUrl());
+                    if (route != null) {
+                        jsSupport.executeJs(route.getJs());
+                    }
+                }
+            }
+        });
+
+        jsSupport.loadUrl(url);
     }
 
     class MyWebViewCallback implements IArea.WebViewCallback {
 
         @Override
         public void onProgressChanged(int newProgress) {
-            if(newProgress>0&&newProgress!=100){
-                displayTextView.setText("页面加载中 "+newProgress+"%...");
+            if (newProgress > 0 && newProgress != 100) {
+                displayTextView.setText("页面加载中 " + newProgress + "%...");
             }
             if (newProgress == 100) {
+                isNeedLoad = true;
+                jsSupport.getPageHtml("source");
                 jsSupport.getPageHtmlForAdjust("source");
+
+                if(!queue.isEmpty()){
+                    OnceRoute route=queue.poll();
+                    jsSupport.executeJs(route.getJs());
+                }
             }
 
             //河南理工大学教务兼容性处理
-            if (webView.getUrl()!=null&&webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
+            if (webView.getUrl() != null && webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
                 webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
             }
         }
@@ -166,20 +235,22 @@ public class UploadHtmlActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    String finalContent="";
-                    finalContent+="LibVersionName:"+ AdapterLibManager.getLibVersionName()+"<br/>";
-                    finalContent+="LibVersionNumber:"+ AdapterLibManager.getLibVersionNumber()+"<br/>";
-                    finalContent+="Package:"+ PackageUtils.getPackageName(UploadHtmlActivity.this)+"<br/>";
-                    finalContent+="url:"+ webView.getUrl()+"<br/>";
-                    finalContent+=content;
-                    putHtml(finalContent);
+                    String finalContent = "";
+                    finalContent += "LibVersionName:" + AdapterLibManager.getLibVersionName() + "<br/>";
+                    finalContent += "LibVersionNumber:" + AdapterLibManager.getLibVersionNumber() + "<br/>";
+                    finalContent += "Package:" + PackageUtils.getPackageName(UploadHtmlActivity.this) + "<br/>";
+                    finalContent += "url:" + webView.getUrl() + "<br/>";
+                    finalContent += content;
+                    //todo 取消注释
+//                    putHtml(finalContent);
+                    sb.append(content).append("\n\n");
                 }
             });
         }
 
         @JavascriptInterface
         public void showHtmlForAdjust(final String html) {
-            if(TextUtils.isEmpty(html)){
+            if (TextUtils.isEmpty(html)) {
                 displayTextView.setText("实时分析失败");
                 return;
             }
@@ -188,70 +259,83 @@ public class UploadHtmlActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Message message=new Message();
-                    message.what=nowIndex;
-                    if(html.indexOf("湖南青果软件有限公司")!=-1){
-                        message.obj="预测:湖南青果教务";
+                    Message message = new Message();
+                    message.what = nowIndex;
+                    if (html.indexOf("湖南青果软件有限公司") != -1) {
+                        message.obj = "预测:湖南青果教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("正方软件股份有限公司")!=-1&&html.indexOf("杭州西湖区")!=-1){
-                        message.obj="预测:新正方教务";
+                    if (html.indexOf("正方软件股份有限公司") != -1 && html.indexOf("杭州西湖区") != -1) {
+                        message.obj = "预测:新正方教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("正方软件股份有限公司")!=-1){
-                        message.obj="预测:正方教务";
+                    if (html.indexOf("正方软件股份有限公司") != -1) {
+                        message.obj = "预测:正方教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("displayTag")!=-1||html.indexOf("URP")!=-1){
-                        message.obj="预测:URP教务";
+                    if (html.indexOf("displayTag") != -1 || html.indexOf("URP") != -1) {
+                        message.obj = "预测:URP教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("金智")!=-1){
-                        message.obj="预测:金智教务";
+                    if (html.indexOf("金智") != -1) {
+                        message.obj = "预测:金智教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("金睿")!=-1){
-                        message.obj="预测:金睿教务";
+                    if (html.indexOf("金睿") != -1) {
+                        message.obj = "预测:金睿教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("优慕课")!=-1){
-                        message.obj="预测:优慕课";
+                    if (html.indexOf("优慕课") != -1) {
+                        message.obj = "预测:优慕课";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("强智")!=-1){
-                        message.obj="预测:强智教务";
+                    if (html.indexOf("强智") != -1) {
+                        message.obj = "预测:强智教务";
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("星期一")!=-1&&html.indexOf("星期二")!=-1&&html.indexOf("星期三")!=-1){
-                        message.obj="预测:教务类型未知";
+                    if (html.indexOf("星期一") != -1 && html.indexOf("星期二") != -1 && html.indexOf("星期三") != -1) {
+                        message.obj = "预测:教务类型未知";
                         handler.sendMessage(message);
                         return;
                     }
-                    message.obj="预测:未到达课表页面";
+                    message.obj = "预测:未到达课表页面";
                     handler.sendMessage(message);
 
                 }
             }).start();
         }
+
+        @JavascriptInterface
+        public void onGetImageSrc(final String src){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    CookieManager manager=CookieManager.getInstance();
+                    String cookie=manager.getCookie(webView.getUrl());
+                    Toast.makeText(UploadHtmlActivity.this,src,Toast.LENGTH_SHORT).show();
+                    ClipUtils.shareTable(UploadHtmlActivity.this,src+"&cookie:"+cookie);
+                }
+            });
+        }
     }
 
-    Handler handler=new Handler(){
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int what=msg.what;
-            String content=msg.obj.toString();
-            if(what>=nowIndex&&!TextUtils.isEmpty(content)){
+            int what = msg.what;
+            String content = msg.obj.toString();
+            if (what >= nowIndex && !TextUtils.isEmpty(content)) {
                 displayTextView.setText(content);
-                nowIndex=what;
+                nowIndex = what;
             }
         }
     };
@@ -260,46 +344,95 @@ public class UploadHtmlActivity extends AppCompatActivity {
         TimetableRequest.putHtml(this, school, url, html, new Callback<BaseResult>() {
             @Override
             public void onResponse(Call<BaseResult> call, Response<BaseResult> response) {
-                BaseResult result=response.body();
-                if(result!=null){
-                    if(result.getCode()==200){
-                        Toast.makeText(UploadHtmlActivity.this,"上传源码成功，请等待开发者适配，适配完成后你会收到一条消息",Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(UploadHtmlActivity.this,result.getMsg(),Toast.LENGTH_SHORT).show();
+                BaseResult result = response.body();
+                if (result != null) {
+                    if (result.getCode() == 200) {
+                        Toast.makeText(UploadHtmlActivity.this, "上传源码成功，请等待开发者适配，适配完成后你会收到一条消息", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(UploadHtmlActivity.this, result.getMsg(), Toast.LENGTH_SHORT).show();
                     }
-                }else{
-                    Toast.makeText(UploadHtmlActivity.this,"result is null!",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(UploadHtmlActivity.this, "result is null!", Toast.LENGTH_SHORT).show();
                 }
                 finish();
             }
 
             @Override
             public void onFailure(Call<BaseResult> call, Throwable t) {
-                Toast.makeText(UploadHtmlActivity.this, t.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(UploadHtmlActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
     }
 
     public void onBtnClicked() {
-        AlertDialog.Builder builder=new AlertDialog.Builder(this)
-                .setTitle("重要内容!")
-                .setMessage("1.请在你看到课表后再点击此按钮\n\n2.URP教务登陆后可能会出现点击无反应的问题，在右上角选择URP-兼容模式\n\n3.上传失败请加qq群反馈:684993074")
-                .setPositiveButton("上传课表", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        isNeedLoad = true;
-                        jsSupport.getPageHtml("source");
-                    }
-                })
-                .setNegativeButton("稍后上传", null);
-        builder.create().show();
+        //todo
+//        AlertDialog.Builder builder=new AlertDialog.Builder(this)
+//                .setTitle("重要内容!")
+//                .setMessage("1.请在你看到课表后再点击此按钮\n\n2.URP教务登陆后可能会出现点击无反应的问题，在右上角选择URP-兼容模式\n\n3.上传失败请加qq群反馈:684993074")
+//                .setPositiveButton("上传课表", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        isNeedLoad = true;
+//                        jsSupport.getPageHtml("source");
+//                    }
+//                })
+//                .setNegativeButton("稍后上传", null);
+//        builder.create().show();
+//        ClipUtils.shareTable(this,sb.toString());
+//        editText.setVisibility(View.VISIBLE);
+//        webView.setVisibility(View.GONE);
+//        editText.setText(sb.toString());
+
+        OnceRoute route1 = new OnceRoute();
+        route1.setUrl("https://vpn.hpu.edu.cn/por/login_psw.csp?rnd=0.037596503214589294#https%3A%2F%2Fvpn.hpu.edu.cn%2F");
+        String javascript1 = "document.getElementById(\"user\").value=\"311509060128\";" +
+                "document.getElementById(\"pwd\").value=\"01655X\";" +
+                "document.getElementById(\"login_form\").submit();";
+        route1.setJs(javascript1);
+
+        OnceRoute route2 = new OnceRoute();
+        route2.setUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
+//        String javascript2="document.getElementsByTagName(\"input\")[8].value=\"311509060128\";"
+//                +"document.getElementsByTagName(\"input\")[9].value=\"509060128\";";
+        String javascript2 = "var oinput=document.getElementsByTagName('input');\n" +
+                "oinput[8].value=\"509060128\";\n"+
+                "oinput[7].value=\"311509060128\";\n"+
+                "alert(\"hide://\");\n";
+//        String javascript2="alert($(\"input[name=zjh]\").val());$(\"input[name=zjh]\").val(\"311509060128\");"+
+//                "$(\"input[name=mm]\").val(\"509060128\");";
+        route2.setJs(javascript2);
+
+        queue.add(route1);
+        queue.add(route2);
+
+        if (!queue.isEmpty()) {
+            OnceRoute route = queue.poll();
+            jsSupport.loadUrl(route.getUrl());
+            jsSupport.executeJs(route.getJs());
+            final OnceRoute nextRoute=queue.peek();
+            if(nextRoute!=null){
+               jsSupport.loadUrlDelay(nextRoute.getUrl(),300);
+            }
+            lastRoute = route;
+        }
+//        jsSupport.loadUrl(route2.getUrl());
+//        jsSupport.executeJs(route2.getJs());
+
+        String js=editor.getText().toString();
+        jsSupport.executeJsDelay(js,500);
     }
 
     @Override
     public void onBackPressed() {
-        if (webView.canGoBack()&&!isNeedLoad)
+        if (webView.canGoBack() && !isNeedLoad)
             webView.goBack();
-       else finish();
+        else finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        jsSupport.clearCookies();
     }
 }

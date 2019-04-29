@@ -376,9 +376,31 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                         webView.loadUrl(now+"/xkAction.do?actionType=6");
                     }
                 }
+                if(item.getItemId()==R.id.id_menu3){
+
+                }
                 return false;
             }
         });
         popup.show();
+    }
+
+    public void setUserAgent(){
+        String[] items={"默认","PC","IE","微信"};
+        String[] uaString={
+                //IE
+                "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)",
+                //微信
+                "Mozilla/5.0 (Linux; Android 6.0; NEM-AL10 Build/HONORNEM-AL10; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/6.2 TBS/043906 Mobile Safari/537.36 MicroMessenger/6.6.1.1220(0x26060133) NetType/WIFI Language/zh_CN"
+        };
+        AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                .setTitle("设置UA")
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
     }
 }

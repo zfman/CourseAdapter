@@ -8,6 +8,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.AdapterLibManager;
 import com.zhuangfei.adapterlib.callback.OnValueCallback;
@@ -17,13 +20,19 @@ import com.zhuangfei.adapterlib.ShareManager;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
 import com.zhuangfei.adapterlib.core.ParseResult;
 import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
+import com.zhuangfei.adapterlib.once.OnceManager;
+import com.zhuangfei.adapterlib.once.OnceRoute;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE=1;
     Context context;
+    LinearLayout layout;
+
+    OnceManager manager=new OnceManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         context=this;
+        layout=findViewById(R.id.layout);
         findViewById(R.id.id_search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,7 +59,90 @@ public class MainActivity extends AppCompatActivity {
                 }catch (Exception e){}
             }
         });
+        findViewById(R.id.id_once).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onOnceOperator();
+            }
+        });
         checkUpdate();
+        manager.readyInits(this);
+    }
+
+    public void onOnceOperator(){
+        OnceRoute route1 = new OnceRoute();
+        route1.setUrl("https://vpn.hpu.edu.cn/por/login_psw.csp?rnd=0.037596503214589294#https%3A%2F%2Fvpn.hpu.edu.cn%2F");
+        String javascript1 = "document.getElementById(\"user\").value=\"311509060128\";" +
+                "document.getElementById(\"pwd\").value=\"01655X\";" +
+                "document.getElementById(\"login_form\").submit();";
+        route1.setJs(javascript1);
+        route1.setNeedVerifyCode(false);
+        route1.setRegex("https://vpn.hpu.edu.cn/por/login_psw.csp\\?rnd=0\\.\\d{18}#https%3A%2F%2Fvpn.hpu.edu.cn%2F");
+
+        OnceRoute route2 = new OnceRoute();
+        route2.setUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
+        String javascript2 = "var vchart=document.getElementById('vchart');\n" +
+                "window.source.onGetImageSrc(vchart.src);\n"+
+                "var oinput=document.getElementsByTagName('input');\n" +
+                "oinput[8].value=\"509060128\";\n"+
+                "oinput[7].value=\"311509060128\";\n"+
+                "alert(\"hide://\");\n";
+        route2.setJs(javascript2);
+        route2.setNeedVerifyCode(true);
+        route2.setRegex("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
+        String codeJs="var oinput=document.getElementsByTagName('input');\n" +
+                "oinput[9].value=\"{code}\";\n"+
+                "var loginForm=document.getElementsByName('loginForm')[0];"+
+                "loginForm.submit();"+
+                "alert(\"hide://\");";
+        route2.setVerifyCodeJs(codeJs);
+
+        OnceRoute route3 = new OnceRoute();
+        route3.setUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
+        String javascript3 = "var vchart=document.getElementById('vchart');\n" +
+                "window.source.onGetImageSrc(vchart.src);\n"+
+                "var oinput=document.getElementsByTagName('input');\n" +
+                "oinput[8].value=\"509060128\";\n"+
+                "oinput[7].value=\"311509060128\";\n"+
+                "alert(\"hide://\");\n";
+        route3.setJs(javascript3);
+
+        List<OnceRoute> routes=new ArrayList<>();
+        routes.add(route1);
+        routes.add(route2);
+
+        manager.getSchedules(this, routes, new OnceManager.OnOnceResultCallback() {
+            @Override
+            public void urlLoading(String url) {
+
+            }
+
+            @Override
+            public void onProgressChanged(int newProgress) {
+
+            }
+
+            @Override
+            public void callback(String html) {
+
+            }
+
+            @Override
+            public void needInputIdentifyCode(String source) {
+                Toast.makeText(getContext(),"source:"+source,Toast.LENGTH_SHORT).show();
+                manager.inputVerifyCode("A5T4");
+            }
+
+            @Override
+            public void onInitFinished() {
+                layout.removeAllViews();
+                layout.addView(manager.getWebView());
+            }
+        });
+    }
+
+    public Context getContext() {
+         return this;
     }
 
     private void checkUpdate() {

@@ -2,5 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/top1"
     android:title="URP教务-兼容模式"/>
+    <item android:id="@+id/top2"
+        android:title="222"/>
 
 </menu>
