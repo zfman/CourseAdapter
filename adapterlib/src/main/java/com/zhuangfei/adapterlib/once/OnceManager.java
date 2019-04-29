@@ -85,6 +85,8 @@ public class OnceManager {
                 jsSupport.executeJsDelay(codeJs,100);
                 executeNextRoute();
             }
+        }else{
+            Toast.makeText(webView.getContext(),"code:empty",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -111,7 +113,6 @@ public class OnceManager {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 OnceRoute nowRoute=queue.peek();
-                Toast.makeText(webView.getContext(),url+":"+nowRoute.getRegex()+":"+url.matches(nowRoute.getRegex()),Toast.LENGTH_LONG).show();
                 if (!queue.isEmpty()&&url.matches(nowRoute.getRegex())) {
                     String js=nowRoute.getJs();
                     jsSupport.executeJsDelay(js,100);

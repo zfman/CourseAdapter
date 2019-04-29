@@ -92,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
         route2.setRegex("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97:80/");
         String codeJs="var oinput=document.getElementsByTagName('input');\n" +
                 "oinput[9].value=\"{code}\";\n"+
-                "var loginForm=document.getElementsByName('loginForm')[0];"+
-                "loginForm.submit();"+
+//                "var loginForm=document.getElementsByName('loginForm')[0];"+
+//                "loginForm.submit();"+
                 "alert(\"hide://\");";
         route2.setVerifyCodeJs(codeJs);
 
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void needInputIdentifyCode(String source) {
-                Toast.makeText(getContext(),"source:"+source,Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(),"source:"+source,Toast.LENGTH_SHORT).show();
                 manager.inputVerifyCode("A5T4");
             }
 
