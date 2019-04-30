@@ -10,6 +10,24 @@ public class School {
     private String menujs;
     private String eventjs;
     private String parsejs;
+    private boolean support_once;
+    private String once;
+
+    public void setOnce(String once) {
+        this.once = once;
+    }
+
+    public void setSupport_once(boolean support_once) {
+        this.support_once = support_once;
+    }
+
+    public boolean isSupport_once() {
+        return support_once;
+    }
+
+    public String getOnce() {
+        return once;
+    }
 
     public String getSchoolName() {
         return schoolName;

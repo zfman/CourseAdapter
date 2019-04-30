@@ -1,5 +1,6 @@
 package com.zhuangfei.adapterlib.once;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,9 +21,12 @@ import com.zhuangfei.adapterlib.AdapterLibManager;
 import com.zhuangfei.adapterlib.activity.UploadHtmlActivity;
 import com.zhuangfei.adapterlib.core.IArea;
 import com.zhuangfei.adapterlib.core.JsSupport;
+import com.zhuangfei.adapterlib.once.local.OnceUser;
+import com.zhuangfei.adapterlib.once.local.OnceUserManager;
 import com.zhuangfei.adapterlib.utils.ClipUtils;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -40,8 +44,9 @@ public class OnceManager {
     private OnOnceResultCallback callback;
     boolean readyInits=false;
     boolean pauseParse=false;
-    OnceRoute shouldNextRoute=null;
     String verifyCode=null;
+    OnceUserManager userManager;
+    String parseJs=null;
 
     public WebView getWebView() {
         return webView;
@@ -51,10 +56,11 @@ public class OnceManager {
         return queue;
     }
 
-    public void getSchedules(Context context, List<OnceRoute> routes, final OnOnceResultCallback callback){
+    public void getSchedules(Context context, List<OnceRoute> routes,String parseJs, final OnOnceResultCallback callback){
         if(context==null||routes==null) return;
         this.context=context;
         this.callback=callback;
+        prepareRoute(routes);
         this.queue.addAll(routes);
         if(!readyInits){
             readyInits(context);
@@ -65,6 +71,35 @@ public class OnceManager {
         executeNextRoute();
     }
 
+    private List<OnceRoute> prepareRoute(List<OnceRoute> routes){
+        if(routes==null) return new ArrayList<>();
+        if(userManager==null) userManager=new OnceUserManager(context);
+        OnceUser firstUser=userManager.listFirstUser();
+        String number1=null,number2=null,password1=null,password2=null;
+        if(firstUser!=null){
+            number1=firstUser.getNumber();
+            number2=firstUser.getNumber2();
+            password1=firstUser.getPassword();
+            password2=firstUser.getPassword2();
+        }
+        for(OnceRoute route:routes){
+            if(route!=null){
+                if(number1!=null){
+                    route.setJs(route.getJs().replaceAll("\\{number1\\}",number1));
+                }
+                if(password1!=null){
+                    route.setJs(route.getJs().replaceAll("\\{password1\\}",password1));
+                }
+                if(number2!=null){
+                    route.setJs(route.getJs().replaceAll("\\{number2\\}",number2));
+                }
+                if(password2!=null){
+                    route.setJs(route.getJs().replaceAll("\\{password2\\}",password2));
+                }
+            }
+        }
+        return routes;
+    }
     private void executeNextRoute(){
         if (!queue.isEmpty()) {
             OnceRoute route = queue.peek();
@@ -78,7 +113,7 @@ public class OnceManager {
             String codeJs=route.getVerifyCodeJs();
             Toast.makeText(webView.getContext(),"code:"+verifyCode,Toast.LENGTH_LONG).show();
             if(!TextUtils.isEmpty(verifyCode)){
-                codeJs.replace("{code}",verifyCode);
+                codeJs=codeJs.replace("{code}",verifyCode);
                 verifyCode=null;
                 pauseParse=false;
                 queue.poll();
@@ -92,6 +127,9 @@ public class OnceManager {
 
     public void readyInits(final Context ctx){
         //初始化
+        if(userManager==null){
+            userManager=new OnceUserManager(ctx);
+        }
         webView=new WebView(ctx);
         jsSupport=new JsSupport(webView);
         jsSupport.applyConfig(ctx,new MyWebViewCallback());
@@ -100,6 +138,10 @@ public class OnceManager {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                AlertDialog.Builder builder=new AlertDialog.Builder(ctx)
+                        .setTitle(url)
+                        .setPositiveButton("Ok",null);
+                builder.create().show();
                 webView.loadUrl(url);
                 return true;
             }
@@ -116,14 +158,8 @@ public class OnceManager {
                 if (!queue.isEmpty()&&url.matches(nowRoute.getRegex())) {
                     String js=nowRoute.getJs();
                     jsSupport.executeJsDelay(js,100);
-                    if(!nowRoute.isNeedVerifyCode()||!TextUtils.isEmpty(verifyCode)){
+                    if(!nowRoute.isNeedVerifyCode()){
                         queue.poll();
-                        String codeJs=nowRoute.getVerifyCodeJs();
-                        if(!TextUtils.isEmpty(verifyCode)){
-                            codeJs.replace("{code}",verifyCode);
-                            verifyCode=null;
-                            jsSupport.executeJsDelay(codeJs,100);
-                        }
                         pauseParse=false;
                     }else{
                         pauseParse=true;
@@ -191,7 +227,7 @@ public class OnceManager {
                 public void run() {
                     CookieManager manager=CookieManager.getInstance();
                     String cookie=manager.getCookie(webView.getUrl());
-                    Toast.makeText(context,src,Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context,src,Toast.LENGTH_SHORT).show();
                 }
             });
         }

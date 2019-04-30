@@ -1,20 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zhuangfei.adapterlib" >
+    package="com.zhuangfei.adapterlib">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
-        <activity android:name=".activity.UploadHtmlActivity"
-            android:theme="@style/NoActionBarTheme"/>
-        <activity android:name=".activity.AdapterTipActivity"
-            android:theme="@style/NoActionBarTheme"/>
-        <activity android:name=".activity.AdapterSchoolActivity"
-            android:theme="@style/NoActionBarTheme"/>
-        <activity android:name=".activity.AdapterSameTypeActivity"
-            android:theme="@style/NoActionBarTheme"/>
-        <activity android:name=".activity.SearchSchoolActivity"
+        <activity
+            android:name=".activity.UploadHtmlActivity"
+            android:theme="@style/NoActionBarTheme" />
+        <activity
+            android:name=".activity.AdapterTipActivity"
+            android:theme="@style/NoActionBarTheme" />
+        <activity
+            android:name=".activity.AdapterSchoolActivity"
+            android:theme="@style/NoActionBarTheme" />
+        <activity
+            android:name=".activity.AdapterSameTypeActivity"
+            android:theme="@style/NoActionBarTheme" />
+        <activity
+            android:name=".activity.SearchSchoolActivity"
             android:theme="@style/NoActionBarTheme"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:label="一键"
+            android:name=".activity.OnceActivity"
+            android:theme="@style/NoActionBarTheme" />
+        <activity android:name=".activity.OnceNumberActivity" android:label="账号管理" />
+        <activity android:name=".activity.AddUserActivity" android:label="添加账号"></activity>
     </application>
 
 </manifest>

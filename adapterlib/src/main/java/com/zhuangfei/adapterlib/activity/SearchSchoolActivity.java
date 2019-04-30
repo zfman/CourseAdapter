@@ -194,6 +194,12 @@ public class SearchSchoolActivity extends AppCompatActivity {
                         return;
                     }
                     if(searchModel!=null){
+                        AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                                .setTitle(school.getSchoolName())
+                                .setMessage(school.isSupport_once()+"\n"+school.getOnce())
+                                .setPositiveButton("ok",null);
+                        builder.create().show();
+
                         toAdapterSchoolActivity(school.getSchoolName(),
                                 school.getUrl(),
                                 school.getType(),

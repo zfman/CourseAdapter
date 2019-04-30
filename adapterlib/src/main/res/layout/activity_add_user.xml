@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <EditText
+        android:id="@+id/id_number1"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="学号"/>
+    <EditText
+        android:id="@+id/id_password1"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="密码"/>
+
+    <EditText
+        android:id="@+id/id_number2"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="学号2"/>
+    <EditText
+        android:id="@+id/id_password2"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="密码2"/>
+
+    <TextView
+        android:id="@+id/id_save_user"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/border_25_blue2"
+        android:gravity="center"
+        android:text="保存账户信息"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/app_white" />
+
+</LinearLayout>
