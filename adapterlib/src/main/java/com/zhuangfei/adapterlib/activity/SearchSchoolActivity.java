@@ -10,9 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,6 +27,8 @@ import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
 import com.zhuangfei.adapterlib.station.StationManager;
+import com.zhuangfei.adapterlib.station.StationSdk;
+import com.zhuangfei.adapterlib.station.model.TinyConfig;
 import com.zhuangfei.adapterlib.utils.Md5Security;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
@@ -45,6 +49,7 @@ import retrofit2.Response;
 
 public class SearchSchoolActivity extends AppCompatActivity {
 
+    private static final String TAG = "SearchSchoolActivity";
     Activity context;
 
     ListView searchListView;
@@ -97,13 +102,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
 
     private void inits() {
         context = this;
-//        backLayout = findViewById(R.id.id_back);
-//        backLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                goBack();
-//            }
-//        });
         ParseManager.clearCache();
 
         models = new ArrayList<>();
@@ -194,12 +192,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
                         return;
                     }
                     if(searchModel!=null){
-                        AlertDialog.Builder builder=new AlertDialog.Builder(this)
-                                .setTitle(school.getSchoolName())
-                                .setMessage(school.isSupport_once()+"\n"+school.getOnce())
-                                .setPositiveButton("ok",null);
-                        builder.create().show();
-
                         toAdapterSchoolActivity(school.getSchoolName(),
                                 school.getUrl(),
                                 school.getType(),
@@ -215,9 +207,38 @@ public class SearchSchoolActivity extends AppCompatActivity {
         }
         //服务站
         else{
-            StationModel stationModel= (StationModel) model.getObject();
-            StationManager.openStationWithout(this,stationModel);
+            getStationConfig((StationModel) model.getObject());
         }
+    }
+
+    public void getStationConfig(final StationModel stationModel){
+        String stationName=StationManager.getStationName(stationModel.getUrl());
+        Log.d(TAG, "getStationConfig: "+stationName);
+        if(TextUtils.isEmpty(stationName)) return;
+        TimetableRequest.getStationConfig(getContext(), stationName, new Callback<TinyConfig>() {
+            @Override
+            public void onResponse(Call<TinyConfig> call, Response<TinyConfig> response) {
+                if(response!=null){
+                    TinyConfig config=response.body();
+                    if(config!=null){
+                        if(config.getVersion()> StationSdk.SDK_VERSION){
+                            Toast.makeText(getContext(),"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
+                        }else{
+                            StationManager.openStationWithout(getContext(),config,stationModel);
+                        }
+                    }else{
+                        Toast.makeText(getContext(),"Error:config is null",Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(getContext(),"Error:response is null",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TinyConfig> call, Throwable t) {
+                Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void toAdapterSameTypeActivity(String type,String js){
@@ -301,6 +322,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             return;
         }
 
+        searchStation(key);
         if (!TextUtils.isEmpty(key)) {
             setLoadLayout(true);
             TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, time,sign,new Callback<ObjResult<AdapterResultV2>>() {

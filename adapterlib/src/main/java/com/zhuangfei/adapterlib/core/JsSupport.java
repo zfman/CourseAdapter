@@ -11,6 +11,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.DownloadListener;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
@@ -264,7 +265,11 @@ public class JsSupport {
 
     public void clearCookies(){
         CookieManager manager=CookieManager.getInstance();
+        CookieSyncManager cookieSyncManager=CookieSyncManager.createInstance(webView.getContext());
+        manager.setAcceptCookie(true);
+        manager.removeSessionCookie();
         manager.removeAllCookie();
+        cookieSyncManager.sync();
     }
 
     /**

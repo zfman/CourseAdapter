@@ -68,4 +68,16 @@ public class StationModel implements Serializable{
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
+    public StationModel copyModel(){
+        StationModel newModel=new StationModel();
+        newModel.setId(getId());
+        newModel.setImg(getImg());
+        newModel.setName(getName());
+        newModel.setOwner(getOwner());
+        newModel.setStationId(getStationId());
+        newModel.setTag(getTag());
+        newModel.setUrl(getUrl());
+        return newModel;
+    }
 }

@@ -8,6 +8,8 @@ public class UrlContants {
 
     public final static String URL_BASE="http://www.liuzhuangfei.com/timetable/";
 
+    public final static String URL_TINY_BASE="http://www.liuzhuangfei.com/apis/area/station/";
+
     //保存数据
     public final static String URL_PUT_VALUE="index.php?c=Timetable&a=putValue";
 
@@ -48,5 +50,7 @@ public class UrlContants {
     public final static String URL_GET_STATIONS="index.php?c=Adapter&a=getStations";
 
     public final static String URL_GET_STATION_BY_ID="index.php?c=Adapter&a=getStationById";
+
+    public final static String URL_GET_STATION_CONFIG="{stationName}/config.json";
 
 }

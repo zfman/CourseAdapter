@@ -195,6 +195,10 @@ public class OnceManager {
         updateVerifyCode();
     }
 
+    public void clearAllCookie(){
+        jsSupport.clearCookies();
+    }
+
     class MyWebViewCallback implements IArea.WebViewCallback {
 
         @Override

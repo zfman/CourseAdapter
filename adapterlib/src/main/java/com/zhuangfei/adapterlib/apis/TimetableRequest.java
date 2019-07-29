@@ -13,6 +13,7 @@ import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.UserDebugModel;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
+import com.zhuangfei.adapterlib.station.model.TinyConfig;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -91,4 +92,10 @@ public class TimetableRequest {
         call.enqueue(callback);
     }
 
+    public static void getStationConfig(Context context, String stationName,Callback<TinyConfig> callback) {
+        TinyService tinyService = ApiUtils.getRetrofitForStation(context)
+                .create(TinyService.class);
+        Call<TinyConfig> call=tinyService.getStationConfig(stationName);
+        call.enqueue(callback);
+    }
 }

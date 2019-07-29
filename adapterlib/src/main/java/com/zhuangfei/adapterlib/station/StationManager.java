@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
+import com.zhuangfei.adapterlib.station.model.TinyConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,18 +16,22 @@ import java.util.Map;
  * Created by Liu ZhuangFei on 2019/2/8.
  */
 public class StationManager {
-    public static void openStationWithout(Activity context,StationModel stationModel){
+    public static void openStationWithout(Activity context, TinyConfig config,StationModel stationModel){
         if(context==null||stationModel==null) return;
         Intent intent=new Intent(context, StationWebViewActivity.class);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_MODEL,stationModel);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_CONFIG,config);
         context.startActivity(intent);
         context.overridePendingTransition(R.anim.anim_station_open_activity,R.anim.anim_station_static);//动画
     }
 
-    public static void openStation(Activity context,StationModel stationModel){
-        if(context==null) return;
-        openStationWithout(context,stationModel);
-        context.finish();
+    public static void openStationOtherPage(Activity context, TinyConfig config,StationModel stationModel){
+        if(context==null||stationModel==null) return;
+        Intent intent=new Intent(context, StationWebViewActivity.class);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_MODEL,stationModel);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_CONFIG,config);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_IS_JUMP,true);
+        context.startActivity(intent);
     }
 
     public static String getRealUrl(String url){
@@ -54,5 +59,15 @@ public class StationManager {
         }else {
             return null;
         }
+    }
+
+    public static String getStationName(String url){
+        if(url==null) return null;
+        int lastIndex=url.lastIndexOf("/");
+        int lastIndex2=url.substring(0,lastIndex).lastIndexOf("/");
+        if(lastIndex==-1||lastIndex2==-1){
+            return null;
+        }
+        return url.substring(lastIndex2+1,lastIndex);
     }
 }

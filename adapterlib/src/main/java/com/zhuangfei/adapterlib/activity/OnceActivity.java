@@ -1,28 +1,13 @@
 package com.zhuangfei.adapterlib.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
-import android.net.http.SslError;
 import android.os.Bundle;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.DownloadListener;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,24 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.R;
-import com.zhuangfei.adapterlib.activity.custom.CustomPopWindow;
-import com.zhuangfei.adapterlib.apis.TimetableRequest;
-import com.zhuangfei.adapterlib.apis.model.ListResult;
-import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.once.OnceManager;
 import com.zhuangfei.adapterlib.once.OnceRoute;
-import com.zhuangfei.adapterlib.station.StationManager;
-import com.zhuangfei.adapterlib.station.StationSdk;
-import com.zhuangfei.adapterlib.utils.ScreenUtils;
-import com.zhuangfei.adapterlib.utils.ViewUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  *
@@ -69,7 +41,7 @@ public class OnceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_once);
         layout = findViewById(R.id.layout);
         importSchedulesLayout = findViewById(R.id.id_once_schedules);
-        codeEdit=findViewById(R.id.id_code_edit);
+        codeEdit = findViewById(R.id.id_code_edit);
         importSchedulesLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,10 +51,10 @@ public class OnceActivity extends AppCompatActivity {
         findViewById(R.id.id_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String code=codeEdit.getText().toString();
-                if(TextUtils.isEmpty(code)){
-                    Toast.makeText(getContext(),"请填入验证码",Toast.LENGTH_SHORT).show();
-                }else{
+                String code = codeEdit.getText().toString();
+                if (TextUtils.isEmpty(code)) {
+                    Toast.makeText(getContext(), "请填入验证码", Toast.LENGTH_SHORT).show();
+                } else {
                     manager.inputVerifyCode(code);
                 }
             }
@@ -98,15 +70,16 @@ public class OnceActivity extends AppCompatActivity {
     }
 
     private void toNumberManager() {
-        Intent intent=new Intent(this,OnceNumberActivity.class);
+        Intent intent = new Intent(this, OnceNumberActivity.class);
         startActivity(intent);
     }
 
-    public Context getContext(){
+    public Context getContext() {
         return this;
     }
 
     public void onOnceOperator() {
+        manager.clearAllCookie();
         OnceRoute route1 = new OnceRoute();
         route1.setUrl("https://vpn.hpu.edu.cn/por/login_psw.csp?rnd=0.037596503214589294#https%3A%2F%2Fvpn.hpu.edu.cn%2F");
         String javascript1 = "document.getElementById(\"user\").value=\"{number1}\";" +
@@ -143,8 +116,7 @@ public class OnceActivity extends AppCompatActivity {
         routes.add(route1);
         routes.add(route2);
         routes.add(route3);
-
-        manager.getSchedules(this, routes, null,new OnceManager.OnOnceResultCallback() {
+        manager.getSchedules(this, routes, null, new OnceManager.OnOnceResultCallback() {
             @Override
             public void urlLoading(String url) {
 
