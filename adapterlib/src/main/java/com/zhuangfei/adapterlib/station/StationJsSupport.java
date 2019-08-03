@@ -26,6 +26,18 @@ public class StationJsSupport {
         }
     }
 
+    /**
+     * 调用一个函数，只负责调用，不对返回结果处理
+     * @param method 方法名
+     */
+    public void checkAndcallJs(String method) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            callEvaluateJavascriptCheck(method);
+        } else { // 当Android SDK < 4.4时
+            callMethodCheck(method);
+        }
+    }
+
     public void callJs(String method,String[] realdatas) {
         if(realdatas==null) callJs(method);
         else {
@@ -51,5 +63,25 @@ public class StationJsSupport {
     private void callEvaluateJavascript(String method) {
         // 调用html页面中的js函数
         webView.evaluateJavascript(method, null);
+    }
+
+    /**
+     * 4.4之下的调用js方法
+     */
+    @SuppressLint("SetJavaScriptEnabled")
+    private void callMethodCheck(String method) {
+        String methodTitle=method.replaceFirst("\\(.*?\\)","");
+        webView.loadUrl("javascript:if(typeof "+methodTitle+"!= 'undefined' &&"+methodTitle+" instanceof Function){" + method+"}");
+    }
+
+    /**
+     * 调用js方法（4.4之上）
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @SuppressLint("SetJavaScriptEnabled")
+    private void callEvaluateJavascriptCheck(String method) {
+        // 调用html页面中的js函数
+        String methodTitle=method.replaceFirst("\\(.*?\\)","");
+        webView.evaluateJavascript("if(typeof "+methodTitle+"!= 'undefined' &&"+methodTitle+" instanceof Function){" + method+"}", null);
     }
 }

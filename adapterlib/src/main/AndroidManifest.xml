@@ -27,7 +27,8 @@
             android:theme="@style/NoActionBarTheme" />
         <activity android:name=".activity.OnceNumberActivity" android:label="账号管理" />
         <activity android:name=".activity.AddUserActivity" android:label="添加账号"></activity>
-        <activity android:name=".activity.StationWebViewActivity" android:theme="@style/NoActionBarTheme"></activity>
+        <activity android:name=".activity.StationWebViewActivity"
+            android:theme="@style/NoActionBarTheme"></activity>
     </application>
 
 </manifest>

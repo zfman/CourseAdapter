@@ -9,6 +9,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
+import com.zhuangfei.adapterlib.utils.ScreenUtils;
 
 import org.json.JSONObject;
 
@@ -17,17 +18,21 @@ import org.json.JSONObject;
  */
 public class StationSdk {
     private static final String TAG = "StationSdk";
-    StationWebViewActivity stationView;
+    IStationView stationView;
     StationJsSupport jsSupport;
     public static int SDK_VERSION = 2;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
 
-    public StationSdk(StationWebViewActivity stationWebViewActivity, String space) {
-        stationView = stationWebViewActivity;
+    public StationSdk(IStationView stationView, String space) {
+        this.stationView = stationView;
         jsSupport = new StationJsSupport(stationView.getWebView());
-        preferences = stationWebViewActivity.getSharedPreferences(space, Context.MODE_PRIVATE);
+        preferences = stationView.getSharedPreferences(space);
         editor = preferences.edit();
+    }
+
+    public StationJsSupport getJsSupport() {
+        return jsSupport;
     }
 
     @Deprecated
@@ -39,20 +44,6 @@ public class StationSdk {
             stationView.showMessage("版本太低，不支持本服务站，请升级新版本!");
             stationView.finish();
         }
-    }
-
-    @JavascriptInterface
-    @SuppressLint("SetJavaScriptEnabled")
-    /**
-     * @params firstUrl 重定向的地址
-     */
-    public void addButton(final String btnText, final String[] textArray, final String[] linkArray) {
-        stationView.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                stationView.setButtonSettings(btnText, textArray, linkArray);
-            }
-        });
     }
 
     @JavascriptInterface
@@ -72,10 +63,10 @@ public class StationSdk {
     @SuppressLint("SetJavaScriptEnabled")
     public void messageDialog(final String tag, final String title,
                               final String content, final String confirmText) {
-        stationView.runOnUiThread(new Runnable() {
+        stationView.postThread(new IStationView.IMainRunner() {
             @Override
-            public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(stationView.getStationContext())
+            public void done() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(stationView.getContext())
                         .setTitle(title)
                         .setMessage(content)
                         .setPositiveButton(confirmText, new DialogInterface.OnClickListener() {
@@ -95,10 +86,10 @@ public class StationSdk {
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void simpleDialog(final String title, final String content, final String okBtn, final String cancelBtn, final String callback) {
-        stationView.runOnUiThread(new Runnable() {
+        stationView.postThread(new IStationView.IMainRunner() {
             @Override
-            public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(stationView.getStationContext())
+            public void done() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(stationView.getContext())
                         .setTitle(title)
                         .setMessage(content);
 
@@ -137,9 +128,9 @@ public class StationSdk {
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void setTitle(final String title) {
-        stationView.runOnUiThread(new Runnable() {
+        stationView.postThread(new IStationView.IMainRunner() {
             @Override
-            public void run() {
+            public void done() {
                 stationView.setTitle(title);
             }
         });
@@ -148,23 +139,21 @@ public class StationSdk {
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void putInt(final String key, final int value) {
-        stationView.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                editor.putInt(key, value);
-            }
-        });
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public int getInt(final String key, final int def) {
+        return preferences.getInt(key,def);
     }
 
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void putString(final String key, final String value){
-        stationView.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                editor.putString(key,value);
-            }
-        });
+        editor.putString(key,value);
+        editor.commit();
     }
 
     @JavascriptInterface
@@ -176,32 +165,116 @@ public class StationSdk {
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void commit(){
-        stationView.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                editor.commit();
-            }
-        });
+        editor.commit();
     }
 
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
     public void clear(){
-        stationView.runOnUiThread(new Runnable() {
+        editor.clear();
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void jumpPage(final String page){
+        stationView.postThread(new IStationView.IMainRunner() {
             @Override
-            public void run() {
-                editor.clear();
+            public void done() {
+                stationView.jumpPage(page);
             }
         });
     }
 
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
-    public void jumpPage(final String page){
-        stationView.runOnUiThread(new Runnable() {
+    public void loadingFinish(){
+        stationView.postThread(new IStationView.IMainRunner() {
             @Override
-            public void run() {
-                stationView.jumpPage(page);
+            public void done() {
+                stationView.notifyLoadingFinish();
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void goback(){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.goback();
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setStatusBarColor(final String color){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setStatusBarColor(color);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setFloatActionBarVisiable(final boolean b){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setFloatActionBarVisiable(b);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setActionBarVisiable(final boolean b){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setActionBarVisiable(b);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setActionBarAlpha(final float alpha){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setActionBarAlpha(alpha);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public int dp2px(final int dp){
+        return stationView.dp2px(dp);
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setActionBarColor(final String color){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setActionBarColor(color);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void setActionTextColor(final String color){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.setActionTextColor(color);
             }
         });
     }

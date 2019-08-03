@@ -3,112 +3,169 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/id_station_root"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/id_station_action_bg"
+    <View
+        android:id="@+id/id_statusbar"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:paddingRight="10dp"
-        android:gravity="center_vertical"
-        android:background="@color/app_white_slight"
-        android:orientation="horizontal">
+        android:layout_height="0dp" />
 
-        <ImageView
-            android:id="@+id/id_back"
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--内容为一层视图-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/id_station_action_bg"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:paddingLeft="15dp"
+                android:background="@color/app_white_slight"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingRight="10dp">
+
+                <ImageView
+                    android:id="@+id/id_back"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_back2"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/id_web_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="100dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="WebView"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!---加载UI-->
+            <LinearLayout
+                android:id="@+id/id_loadingview_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/id_loading_tip1"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp" />
+
+                    <View
+                        android:id="@+id/id_loading_tip2"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_marginLeft="5dp" />
+
+                    <View
+                        android:id="@+id/id_loading_tip3"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_marginLeft="5dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.zhuangfei.adapterlib.activity.view.MyWebView
+                android:id="@+id/id_webview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/app_white" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/id_station_float_actionbar"
             android:visibility="gone"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_back2"/>
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:paddingLeft="15dp"
+            android:background="@color/app_white_slight"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingRight="10dp">
 
-        <TextView
-            android:id="@+id/id_web_title"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="WebView"
-            android:layout_marginRight="10dp"
-            android:textSize="18sp" />
+            <ImageView
+                android:id="@+id/id_back2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_back2"
+                android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/id_web_title2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="100dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="WebView"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <!--导航按钮为一层视图-->
         <LinearLayout
             android:id="@+id/id_station_buttongroup"
             android:layout_width="95dp"
             android:layout_height="30dp"
+            android:layout_marginTop="7dp"
+            android:layout_gravity="right"
+            android:layout_margin="5dp"
             android:background="@drawable/border_25_gray"
             android:orientation="horizontal">
+
             <LinearLayout
                 android:id="@+id/id_station_more"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:gravity="center">
+
                 <ImageView
                     android:id="@+id/iv_station_more"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:src="@drawable/ic_station_about"/>
+                    android:src="@drawable/ic_station_about" />
             </LinearLayout>
+
             <View
                 android:id="@+id/id_station_diver"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:background="@color/app_gray"/>
+                android:layout_marginTop="5dp"
+                android:background="@color/app_gray" />
 
             <LinearLayout
                 android:id="@+id/id_station_close"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:gravity="center">
+
                 <ImageView
                     android:id="@+id/iv_station_close"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:src="@drawable/ic_station_back"/>
+                    android:src="@drawable/ic_station_back" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <android.support.v4.widget.ContentLoadingProgressBar
-        android:visibility="gone"
-        android:id="@+id/id_loadingbar"
-        style="?android:attr/android:progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:max="100"
-        android:progress="0"
-        android:layout_height="3dp" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <WebView
-            android:id="@+id/id_webview"
-            android:background="@color/app_white"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        <TextView
-            android:visibility="gone"
-            android:id="@+id/id_btn_function"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:textSize="17sp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:gravity="center"
-            android:layout_marginBottom="30dp"
-            android:textColor="@color/app_white"
-            android:background="@drawable/border_25_station_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="辅助功能"/>
     </FrameLayout>
-
-
 </LinearLayout>

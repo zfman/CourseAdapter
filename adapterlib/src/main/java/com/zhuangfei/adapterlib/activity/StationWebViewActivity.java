@@ -4,12 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -23,6 +23,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -31,6 +32,10 @@ import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.activity.custom.CustomPopWindow;
 import com.zhuangfei.adapterlib.R;
+import com.zhuangfei.adapterlib.activity.view.MyWebView;
+import com.zhuangfei.adapterlib.station.DefaultStationOperator;
+import com.zhuangfei.adapterlib.station.IStationOperator;
+import com.zhuangfei.adapterlib.station.IStationView;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.station.StationManager;
@@ -41,7 +46,8 @@ import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.station.StationSdk;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,19 +57,17 @@ import retrofit2.Response;
  * 服务站加载引擎
  * 暂时不可用
  */
-public class StationWebViewActivity extends AppCompatActivity {
+public class StationWebViewActivity extends AppCompatActivity implements IStationView {
 
     private static final String TAG = "StationWebViewActivity";
 
     // wenview与加载条
-    WebView webView;
+    MyWebView webView;
 
     // 标题
     TextView titleTextView;
     String url, title;
-
-    ContentLoadingProgressBar loadingProgressBar;
-    TextView functionButton;
+    TextView titleTextView2;
 
     // 声明PopupWindow
     private CustomPopWindow popupWindow;
@@ -72,15 +76,15 @@ public class StationWebViewActivity extends AppCompatActivity {
     TinyConfig tinyConfig;
     public static final String EXTRAS_STATION_MODEL = "station_model_extras";
     public static final String EXTRAS_STATION_CONFIG = "station_config_extras";
-    public static final String EXTRAS_STATION_IS_JUMP= "station_is_jump";
+    public static final String EXTRAS_STATION_IS_JUMP = "station_is_jump";
 
     LinearLayout rootLayout;
-    List<StationModel> localStationModels;
     boolean haveLocal = false;
     int deleteId = -1;
 
     LinearLayout actionbarLayout;
     ImageView backImageView;
+    ImageView backImageView2;
 
     ImageView moreImageView;
     ImageView closeImageView;
@@ -88,26 +92,40 @@ public class StationWebViewActivity extends AppCompatActivity {
     View diverView;//分隔竖线
 
     int needUpdate = 0;
-    String[] textArray = null, linkArray = null;
+
+    View loadingTipView1;
+    View loadingTipView2;
+    View loadingTipView3;
+    LinearLayout loadingViewLayout;
+
+    private int currentLoading = 1;
+    boolean isJump=false;
+    boolean loadFinish=false;
+    StationSdk stationSdk;
+
+    Timer timer=new Timer();
+    View statusBar;
+    LinearLayout floatActionBar;
+    IStationOperator stationOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         beforeSetContentView();
         setContentView(R.layout.activity_station_web_view);
+        ViewUtils.setTransparent(this);
         initUrl();
         initView();
         loadWebView();
-        findStationLocal();
         getStationById();
     }
 
-    public void jumpPage(String page){
-        StationModel newStationModel=stationModel.copyModel();
-        int lastIndex=newStationModel.getUrl().lastIndexOf("/");
-        String newUrl=newStationModel.getUrl().substring(0,lastIndex+1)+page;
+    public void jumpPage(String page) {
+        StationModel newStationModel = stationModel.copyModel();
+        int lastIndex = newStationModel.getUrl().lastIndexOf("/");
+        String newUrl = newStationModel.getUrl().substring(0, lastIndex + 1) + page;
         newStationModel.setUrl(newUrl);
-        StationManager.openStationOtherPage(this,tinyConfig,newStationModel);
+        StationManager.openStationOtherPage(this, tinyConfig, newStationModel);
     }
 
     private void initUrl() {
@@ -125,25 +143,52 @@ public class StationWebViewActivity extends AppCompatActivity {
         actionbarLayout = findViewById(R.id.id_station_action_bg);
         rootLayout = findViewById(R.id.id_station_root);
         titleTextView = findViewById(R.id.id_web_title);
-        loadingProgressBar = findViewById(R.id.id_loadingbar);
-        functionButton = findViewById(R.id.id_btn_function);
-        backImageView=findViewById(R.id.id_back);
+        backImageView = findViewById(R.id.id_back);
+        backImageView2 = findViewById(R.id.id_back2);
+        titleTextView2 = findViewById(R.id.id_web_title2);
+        statusBar=findViewById(R.id.id_statusbar);
+        floatActionBar=findViewById(R.id.id_station_float_actionbar);
 
-        boolean isJump=getIntent().getBooleanExtra(EXTRAS_STATION_IS_JUMP,false);
-        if(isJump){
+        loadingTipView1 = findViewById(R.id.id_loading_tip1);
+        loadingTipView2 = findViewById(R.id.id_loading_tip2);
+        loadingTipView3 = findViewById(R.id.id_loading_tip3);
+        loadingViewLayout=findViewById(R.id.id_loadingview_layout);
+
+        stationOperator=new DefaultStationOperator();
+
+        try{
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewUtils.getStatusHeight(this));
+            statusBar.setLayoutParams(lp);
+            TinyConfig.ThemeBean themeBean = tinyConfig.getTheme();
+            statusBar.setBackgroundColor(Color.parseColor(themeBean.getPrimaryColor()));
+        }catch (Exception e){
+            Log.e(TAG, "initView: ",e );
+        }
+
+        stationSdk=new StationSdk(this, getStationSpace());
+        startLoading();
+
+
+        isJump = getIntent().getBooleanExtra(EXTRAS_STATION_IS_JUMP, false);
+        if (isJump) {
             backImageView.setVisibility(View.VISIBLE);
             backImageView.setColorFilter(Color.parseColor(tinyConfig.getTheme().getActionTextColor()));
+            backImageView2.setVisibility(View.VISIBLE);
+            backImageView2.setColorFilter(Color.parseColor(tinyConfig.getTheme().getActionTextColor()));
         }
 
         titleTextView.setText(title);
+        titleTextView2.setText(title);
         try {
             actionbarLayout.setBackgroundColor(Color.parseColor(tinyConfig.getTheme().getActionColor()));
+            floatActionBar.setBackgroundColor(Color.parseColor(tinyConfig.getTheme().getActionColor()));
         } catch (Exception e) {
         }
 
         try {
             int textcolor = Color.parseColor(tinyConfig.getTheme().getActionTextColor());
             titleTextView.setTextColor(textcolor);
+            titleTextView2.setTextColor(textcolor);
             moreImageView.setColorFilter(textcolor);
             closeImageView.setColorFilter(textcolor);
             GradientDrawable gd = new GradientDrawable();
@@ -154,12 +199,10 @@ public class StationWebViewActivity extends AppCompatActivity {
         } catch (Exception e) {
         }
 
-        functionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onButtonClicked();
-            }
-        });
+
+        if(!tinyConfig.getTheme().isActionBarVisiable()){
+            actionbarLayout.setVisibility(View.GONE);
+        }
 
         findViewById(R.id.id_station_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,6 +224,79 @@ public class StationWebViewActivity extends AppCompatActivity {
                 finish();
             }
         });
+        backImageView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        webView.setScrollChangeCallback(new MyWebView.onScrollChangeCallback() {
+            @Override
+            public void onScrollChanged(int l, int t, int oldl, int oldt) {
+                stationSdk.getJsSupport().checkAndcallJs("onScrollChanged("+l+","+t+","+oldl+","+oldt+")");
+            }
+        });
+    }
+
+    private void startLoading() {
+        loadingViewLayout.setVisibility(View.VISIBLE);
+        webView.setVisibility(View.GONE);
+        currentLoading = 1;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showCurrentLoadingView();
+                    }
+                });
+            }
+        }, 0,300);
+    }
+
+    private int getNextLoadingIndex() {
+        if (currentLoading < 3) return currentLoading + 1;
+        return 1;
+    }
+
+    private int getLastLoadingIndex(){
+        if(currentLoading>1) return currentLoading-1;
+        return 3;
+    }
+
+    private void showCurrentLoadingView() {
+        loadingTipView1.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip1));
+        loadingTipView2.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip1));
+        loadingTipView3.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip1));
+        switch (currentLoading) {
+            case 1:
+                loadingTipView1.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip3));
+                break;
+            case 2:
+                loadingTipView2.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip3));
+                break;
+            case 3:
+                loadingTipView3.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip3));
+                break;
+            default:
+                break;
+        }
+        switch (getLastLoadingIndex()) {
+            case 1:
+                loadingTipView1.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip2));
+                break;
+            case 2:
+                loadingTipView2.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip2));
+                break;
+            case 3:
+                loadingTipView3.setBackgroundDrawable(getResources().getDrawable(R.drawable.loadingview_tip2));
+                break;
+            default:
+                break;
+        }
+        currentLoading=getNextLoadingIndex();
     }
 
     private void beforeSetContentView() {
@@ -189,18 +305,6 @@ public class StationWebViewActivity extends AppCompatActivity {
         if (stationModel == null || tinyConfig == null) {
             Toast.makeText(this, "传参异常", Toast.LENGTH_SHORT).show();
             finish();
-        }
-//        configMap= StationManager.getStationConfig(stationModel.getUrl());
-//        if(configMap!=null&&!configMap.isEmpty()){
-//            try{
-//                ViewUtils.setStatusBarColor(this, Color.parseColor(configMap.get("statusColor")));
-//            }catch (Exception e){}
-//        }
-
-        try {
-            TinyConfig.ThemeBean themeBean=tinyConfig.getTheme();
-            ViewUtils.setStatusBarColor(this, Color.parseColor(themeBean.getPrimaryColor()));
-        } catch (Exception e) {
         }
     }
 
@@ -244,57 +348,21 @@ public class StationWebViewActivity extends AppCompatActivity {
             }
 
             if (update) {
-//                final StationModel local=DataSupport.find(StationModel.class,stationModel.getId());
-//                if(local!=null){
-//                    local.setName(model.getName());
-//                    local.setUrl(model.getUrl());
-//                    local.setImg(model.getImg());
-//                    local.update(stationModel.getId());
-//                }
-//
-//                AlertDialog.Builder builder=new AlertDialog.Builder(this)
-//                        .setTitle("服务站更新")
-//                        .setMessage("本地保存的服务站已过期，需要重新加载")
-//                        .setPositiveButton("重新加载", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                //todo post reload event
-//                                finish();
-//                            }
-//                        });
-//                builder.create().show();
+                stationOperator.updateLocalStation(model);
+                AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                        .setTitle("服务站更新")
+                        .setMessage("本地保存的服务站已过期，需要重新加载")
+                        .setPositiveButton("重新加载", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //todo post reload event
+                                stationOperator.postUpdateStationEvent();
+                                finish();
+                            }
+                        });
+                builder.create().show();
             }
         }
-    }
-
-    /**
-     * 获取添加到首页的服务站
-     */
-    public void findStationLocal() {
-//        FindMultiExecutor findMultiExecutor=DataSupport.findAllAsync(StationModel.class);
-//        findMultiExecutor.listen(new FindMultiCallback() {
-//            @Override
-//            public <T> void onFinish(List<T> t) {
-//                List<StationModel> stationModels= (List<StationModel>) t;
-//                if(localStationModels==null){
-//                    localStationModels=new ArrayList<>();
-//                }
-//                localStationModels.clear();
-//                localStationModels.addAll(stationModels);
-//                haveLocal=searchInList(localStationModels,stationModel.getStationId());
-//            }
-//        });
-    }
-
-    public boolean searchInList(List<StationModel> list, int stationId) {
-        if (list == null) return false;
-        for (StationModel model : list) {
-            if (model.getStationId() == stationId) {
-                this.deleteId = model.getId();
-                return true;
-            }
-        }
-        return false;
     }
 
     //为弹出窗口实现监听类
@@ -305,17 +373,13 @@ public class StationWebViewActivity extends AppCompatActivity {
                 if (haveLocal) {
                     Toast.makeText(StationWebViewActivity.this, "已从主页删除", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (localStationModels.size() >= 15) {
+                    if (!stationOperator.isCanSaveStaion()) {
                         Toast.makeText(StationWebViewActivity.this, "已达到最大数量限制15，请先删除其他服务站后尝试", Toast.LENGTH_SHORT).show();
                     } else {
+                        stationOperator.saveOrRemoveStation(stationModel);
                         Toast.makeText(StationWebViewActivity.this, "已添加到首页", Toast.LENGTH_SHORT).show();
                     }
                 }
-                findStationLocal();
-            }
-
-            if (v.getId() == R.id.pop_add_home) {
-
             }
 
             if (v.getId() == R.id.pop_about) {
@@ -328,6 +392,7 @@ public class StationWebViewActivity extends AppCompatActivity {
 
             if (v.getId() == R.id.pop_to_home) {
                 webView.clearHistory();
+                startLoading();
                 webView.loadUrl(stationModel.getUrl());
             }
             popupWindow.dismiss();
@@ -342,11 +407,7 @@ public class StationWebViewActivity extends AppCompatActivity {
         settings.setDefaultTextEncodingName("gb2312");
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setDomStorageEnabled(true);
-        webView.addJavascriptInterface(new StationSdk(this, getStationSpace()), "sdk");
-
-//        settings.setSupportZoom(true);
-//        settings.setBuiltInZoomControls(true);
-
+        webView.addJavascriptInterface(stationSdk, "sdk");
         webView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent,
@@ -377,9 +438,9 @@ public class StationWebViewActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
-                loadingProgressBar.setProgress(newProgress);
-                if (newProgress == 100) loadingProgressBar.hide();
-                else loadingProgressBar.show();
+                if (newProgress ==100){
+                    notifyLoadingFinish();
+                }
             }
 
             @Override
@@ -409,21 +470,23 @@ public class StationWebViewActivity extends AppCompatActivity {
             webView.destroy();
             webView = null;
         }
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onDestroy')");
         super.onDestroy();
     }
 
-    public void setButtonSettings(String btnText, String[] textArray, String[] linkArray) {
-        if (TextUtils.isEmpty(btnText)) return;
-        functionButton.setText(btnText);
-        functionButton.setVisibility(View.VISIBLE);
-        this.textArray = textArray;
-        this.linkArray = linkArray;
+    @Override
+    public void notifyLoadingFinish(){
+        loadingViewLayout.setVisibility(View.GONE);
+        webView.setVisibility(View.VISIBLE);
+        timer.cancel();
     }
 
     @Override
     public void finish() {
         super.finish();
-        this.overridePendingTransition(R.anim.anim_station_static, R.anim.anim_station_close_activity);
+        if(!isJump){
+            this.overridePendingTransition(R.anim.anim_station_static, R.anim.anim_station_close_activity);
+        }
     }
 
     /**
@@ -441,14 +504,18 @@ public class StationWebViewActivity extends AppCompatActivity {
         });
     }
 
+    @Override
     public void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public Context getStationContext() {
-        return this;
+
+    @Override
+    public Context getContext() {
+        return null;
     }
 
+    @Override
     public WebView getWebView() {
         return webView;
     }
@@ -457,26 +524,96 @@ public class StationWebViewActivity extends AppCompatActivity {
         return "station_space_" + stationModel.getStationId();
     }
 
+    @Override
     public void setTitle(String title) {
         titleTextView.setText(title);
+        titleTextView2.setText(title);
     }
 
-    public void onButtonClicked() {
-        if (textArray == null || linkArray == null) return;
-        if (textArray.length != linkArray.length) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("请选择功能")
-                .setItems(textArray, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (i < linkArray.length) {
-                            webView.loadUrl(linkArray[i]);
-                        }
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                });
-        builder.create().show();
+    @Override
+    public void goback(){
+        finish();
+    }
+
+    @Override
+    public SharedPreferences getSharedPreferences(String space) {
+        return getSharedPreferences(space,MODE_PRIVATE);
+    }
+
+    @Override
+    public void postThread(final IMainRunner runner) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                runner.done();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onResume')");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onStart')");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onRestart')");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onPause')");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stationSdk.getJsSupport().checkAndcallJs("onLifecycle('onStop')");
+    }
+
+    @Override
+    public void setActionBarVisiable(boolean b) {
+        actionbarLayout.setVisibility(b?View.VISIBLE:View.GONE);
+    }
+
+    @Override
+    public void setFloatActionBarVisiable(boolean b) {
+        floatActionBar.setVisibility(b?View.VISIBLE:View.GONE);
+    }
+
+    @Override
+    public void setStatusBarColor(String color){
+        statusBar.setBackgroundColor(Color.parseColor(color));
+    }
+
+    @Override
+    public int dp2px(int dp) {
+        return ScreenUtils.dip2px(this,dp);
+    }
+
+    @Override
+    public void setActionBarAlpha(float alpha){
+        floatActionBar.setAlpha(alpha);
+    }
+
+    @Override
+    public void setActionBarColor(String color){
+        actionbarLayout.setBackgroundColor(Color.parseColor(color));
+        floatActionBar.setBackgroundColor(Color.parseColor(color));
+    }
+
+    @Override
+    public void setActionTextColor(String color) {
+        titleTextView.setTextColor(Color.parseColor(color));
+        titleTextView2.setTextColor(Color.parseColor(color));
     }
 }

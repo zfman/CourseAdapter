@@ -62,6 +62,24 @@ public class TinyConfig implements Serializable{
         private String primaryColor="#1E90FF";
         private String actionColor="#1E90FF";
         private String actionTextColor="#FFFFFF";
+        private boolean actionBarVisiable=true;
+        private boolean statusIconGrayColor=false;
+
+        public void setStatusIconGrayColor(boolean statusIconGrayColor) {
+            this.statusIconGrayColor = statusIconGrayColor;
+        }
+
+        public boolean isStatusIconGrayColor() {
+            return statusIconGrayColor;
+        }
+
+        public void setActionBarVisiable(boolean actionBarVisiable) {
+            this.actionBarVisiable = actionBarVisiable;
+        }
+
+        public boolean isActionBarVisiable() {
+            return actionBarVisiable;
+        }
 
         public String getPrimaryColor() {
             return primaryColor;

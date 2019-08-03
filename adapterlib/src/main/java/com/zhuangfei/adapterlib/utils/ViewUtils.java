@@ -70,6 +70,15 @@ public class ViewUtils {
         }
     }
 
+    public static void setStatusTextWhiteColor(Activity activity){
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            //获取窗口区域
+            Window window = activity.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+    }
+
     public static void setViewHeightForLinear(Context context,View view){
         int height=getStatusHeight(context);
         LinearLayout.LayoutParams lp= new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,height);
