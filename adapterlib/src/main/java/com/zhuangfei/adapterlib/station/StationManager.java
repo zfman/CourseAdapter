@@ -1,16 +1,34 @@
 package com.zhuangfei.adapterlib.station;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.R;
+import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
+import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Liu ZhuangFei on 2019/2/8.
@@ -69,5 +87,86 @@ public class StationManager {
             return null;
         }
         return url.substring(lastIndex2+1,lastIndex);
+    }
+
+    public static void checkClip(Activity context){
+        String content=getClipContent(context);
+        if(TextUtils.isEmpty(content)) return;
+        SharedPreferences sp=context.getSharedPreferences("station_common_space",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=sp.edit();
+        String clipString=sp.getString("clip",null);
+        List<ClipBoardModel> localClips=new ArrayList<>();
+        if(clipString!=null){
+            TypeToken<List<ClipBoardModel>> typeToken=new TypeToken<List<ClipBoardModel>>(){};
+            List<ClipBoardModel> tmp=new Gson().fromJson(clipString,typeToken.getType());
+            localClips.addAll(tmp);
+        }
+
+        for(ClipBoardModel model:localClips){
+            if(model!=null){
+                if(content.matches(model.getRegex())){
+                    getStationConfig(context,model.getStationModel(),content);
+                    break;
+                }
+            }
+        }
+        clearClip(context);
+    }
+
+    public static void getStationConfig(final Activity context, final StationModel stationModel, final String content){
+        final String stationName=StationManager.getStationName(stationModel.getUrl());
+        if(TextUtils.isEmpty(stationName)) return;
+        TimetableRequest.getStationConfig(context, stationName, new Callback<TinyConfig>() {
+            @Override
+            public void onResponse(Call<TinyConfig> call, Response<TinyConfig> response) {
+                if(response!=null){
+                    TinyConfig config=response.body();
+                    if(config!=null){
+                        if(config.getVersion()> StationSdk.SDK_VERSION){
+                            Toast.makeText(context,"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
+                        }else{
+                            try {
+                                stationModel.setUrl(stationModel.getUrl()+"?clip="+ URLEncoder.encode(content,"utf8"));
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            StationManager.openStationWithout(context,config,stationModel);
+                        }
+                    }else{
+                        Toast.makeText(context,"Error:config is null",Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(context,"Error:response is null",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TinyConfig> call, Throwable t) {
+                Toast.makeText(context,t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static void clearClip(Context context) {
+        ClipboardManager cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData mClipData = ClipData.newPlainText("Label", "");
+        cm.setPrimaryClip(mClipData);
+    }
+
+    public static String getClipContent(Context ctx){
+        ClipboardManager cm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData data = cm.getPrimaryClip();
+        if (data != null) {
+            if (data.getItemCount() > 0) {
+                ClipData.Item item = data.getItemAt(0);
+                if (item.getText() != null) {
+                    String content = item.getText().toString();
+                    if (!TextUtils.isEmpty(content)) {
+                        return content;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

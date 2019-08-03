@@ -10,6 +10,9 @@ import android.webkit.WebView;
 public interface IStationView {
 
     int dp2px(int dp);
+    void registerClipBoard(String regex);
+    void unregisterClipBoard();
+    boolean isRegisterClipBoard();
     void setActionBarAlpha(float alpha);
     void setActionBarVisiable(boolean b);
     void setFloatActionBarVisiable(boolean b);

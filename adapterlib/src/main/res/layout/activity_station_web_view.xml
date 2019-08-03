@@ -83,6 +83,7 @@
 
             <com.zhuangfei.adapterlib.activity.view.MyWebView
                 android:id="@+id/id_webview"
+                android:scrollbars="none"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/app_white" />

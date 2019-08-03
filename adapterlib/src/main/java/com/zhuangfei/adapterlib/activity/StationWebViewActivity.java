@@ -30,12 +30,15 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.activity.custom.CustomPopWindow;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.activity.view.MyWebView;
 import com.zhuangfei.adapterlib.station.DefaultStationOperator;
 import com.zhuangfei.adapterlib.station.IStationOperator;
 import com.zhuangfei.adapterlib.station.IStationView;
+import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.station.StationManager;
@@ -45,6 +48,7 @@ import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.station.StationSdk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -599,6 +603,88 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     public int dp2px(int dp) {
         return ScreenUtils.dip2px(this,dp);
     }
+
+    @Override
+    public void registerClipBoard(String regex) {
+        SharedPreferences sp=getSharedPreferences("station_common_space");
+        SharedPreferences.Editor editor=sp.edit();
+        String clipString=sp.getString("clip",null);
+        List<ClipBoardModel> localClips=new ArrayList<>();
+        if(clipString!=null){
+            TypeToken<List<ClipBoardModel>> typeToken=new TypeToken<List<ClipBoardModel>>(){};
+            List<ClipBoardModel> tmp=new Gson().fromJson(clipString,typeToken.getType());
+            localClips.addAll(tmp);
+        }
+        ClipBoardModel findModel=null;
+        for(ClipBoardModel model:localClips){
+            if(model!=null&&model.getStationModel()!=null){
+                if(model.getStationModel().getStationId()==stationModel.getStationId()){
+                    findModel=model;
+                    break;
+                }
+            }
+        }
+        if(findModel!=null){
+            findModel.setRegex(regex);
+        }else {
+            ClipBoardModel newClip=new ClipBoardModel();
+            newClip.setRegex(regex);
+            newClip.setStationModel(stationModel);
+            localClips.add(newClip);
+        }
+        editor.putString("clip",new Gson().toJson(localClips));
+        editor.commit();
+    }
+
+    @Override
+    public void unregisterClipBoard() {
+        SharedPreferences sp=getSharedPreferences("station_common_space");
+        SharedPreferences.Editor editor=sp.edit();
+        String clipString=sp.getString("clip",null);
+        List<ClipBoardModel> localClips=new ArrayList<>();
+        if(clipString!=null){
+            TypeToken<List<ClipBoardModel>> typeToken=new TypeToken<List<ClipBoardModel>>(){};
+            List<ClipBoardModel> tmp=new Gson().fromJson(clipString,typeToken.getType());
+            localClips.addAll(tmp);
+        }
+        List<ClipBoardModel> removeClip=new ArrayList<>();
+        for(ClipBoardModel model:localClips){
+            if(model!=null&&model.getStationModel()!=null){
+                if(model.getStationModel().getStationId()==stationModel.getStationId()){
+                    removeClip.add(model);
+                }
+            }
+        }
+        if(removeClip!=null){
+            localClips.removeAll(removeClip);
+        }
+        editor.putString("clip",new Gson().toJson(localClips));
+        editor.commit();
+    }
+
+    @Override
+    public boolean isRegisterClipBoard() {
+        SharedPreferences sp=getSharedPreferences("station_common_space");
+        String clipString=sp.getString("clip",null);
+        List<ClipBoardModel> localClips=new ArrayList<>();
+        if(clipString!=null){
+            TypeToken<List<ClipBoardModel>> typeToken=new TypeToken<List<ClipBoardModel>>(){};
+            List<ClipBoardModel> tmp=new Gson().fromJson(clipString,typeToken.getType());
+            localClips.addAll(tmp);
+        }
+        ClipBoardModel findModel=null;
+        for(ClipBoardModel model:localClips){
+            if(model!=null&&model.getStationModel()!=null){
+                if(model.getStationModel().getStationId()==stationModel.getStationId()){
+                    findModel=model;
+                    break;
+                }
+            }
+        }
+        if(findModel!=null) return true;
+        return false;
+    }
+
 
     @Override
     public void setActionBarAlpha(float alpha){

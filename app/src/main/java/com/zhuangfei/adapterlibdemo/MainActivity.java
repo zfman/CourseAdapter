@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,9 +25,12 @@ import com.zhuangfei.adapterlib.core.ParseResult;
 import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
 import com.zhuangfei.adapterlib.once.OnceManager;
 import com.zhuangfei.adapterlib.once.OnceRoute;
+import com.zhuangfei.adapterlib.station.StationManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,6 +73,22 @@ public class MainActivity extends AppCompatActivity {
         });
         checkUpdate();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handler.sendEmptyMessage(0x123);
+    }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0x123) {
+                StationManager.checkClip(MainActivity.this);
+            }
+        }
+    };
 
     public Context getContext() {
          return this;

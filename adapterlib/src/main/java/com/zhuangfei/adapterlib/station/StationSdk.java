@@ -1,17 +1,18 @@
 package com.zhuangfei.adapterlib.station;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
-import com.zhuangfei.adapterlib.utils.ScreenUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Liu ZhuangFei on 2019/2/6.
@@ -277,5 +278,33 @@ public class StationSdk {
                 stationView.setActionTextColor(color);
             }
         });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void registerClipBoard(final String regex){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.registerClipBoard(regex);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void unregisterClipBoard(){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.unregisterClipBoard();
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public boolean isRegisterClipBoard(){
+        return stationView.isRegisterClipBoard();
     }
 }
