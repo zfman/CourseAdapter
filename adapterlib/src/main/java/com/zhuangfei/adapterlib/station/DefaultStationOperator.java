@@ -12,7 +12,17 @@ public class DefaultStationOperator implements IStationOperator {
     }
 
     @Override
-    public int getLocalStationSize() {
-        return 0;
+    public boolean isCanSaveStaion() {
+        return false;
+    }
+
+    @Override
+    public void postUpdateStationEvent() {
+
+    }
+
+    @Override
+    public void updateLocalStation(StationModel stationModel) {
+
     }
 }
