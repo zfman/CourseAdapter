@@ -16,9 +16,27 @@ public class TinyConfig implements Serializable{
      */
 
     private int version;
+    private int support;
+    private String name;
     private ThemeBean theme;
     private List<PagesBean> pages;
     private List<TabsBean> tabs;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setSupport(int support) {
+        this.support = support;
+    }
+
+    public int getSupport() {
+        return support;
+    }
 
     public int getVersion() {
         return version;

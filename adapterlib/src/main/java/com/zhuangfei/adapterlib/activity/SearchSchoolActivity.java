@@ -1,8 +1,10 @@
 package com.zhuangfei.adapterlib.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.zhuangfei.adapterlib.AdapterLibManager;
 import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
@@ -29,6 +32,7 @@ import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
 import com.zhuangfei.adapterlib.station.StationManager;
 import com.zhuangfei.adapterlib.station.StationSdk;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.utils.GsonUtils;
 import com.zhuangfei.adapterlib.utils.Md5Security;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
@@ -66,6 +70,8 @@ public class SearchSchoolActivity extends AppCompatActivity {
     boolean firstStatus=true;
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
+    SharedPreferences sp;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +92,8 @@ public class SearchSchoolActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        sp=getSharedPreferences("station_space_all", Context.MODE_PRIVATE);
+        editor=sp.edit();
         searchListView=findViewById(R.id.id_search_listview);
         searchEditText=findViewById(R.id.id_search_edittext);
         loadLayout=findViewById(R.id.id_loadlayout);
@@ -215,19 +223,22 @@ public class SearchSchoolActivity extends AppCompatActivity {
         String stationName=StationManager.getStationName(stationModel.getUrl());
         Log.d(TAG, "getStationConfig: "+stationName);
         if(TextUtils.isEmpty(stationName)) return;
+        String config=sp.getString("config_"+stationModel.getStationId(),null);
+        if(!TextUtils.isEmpty(config)){
+            handleConfig(GsonUtils.getGson().fromJson(config,TinyConfig.class),stationModel);
+            return;
+        }
+        setLoadLayout(true);
         TimetableRequest.getStationConfig(getContext(), stationName, new Callback<TinyConfig>() {
             @Override
             public void onResponse(Call<TinyConfig> call, Response<TinyConfig> response) {
+                setLoadLayout(false);
                 if(response!=null){
                     TinyConfig config=response.body();
+                    handleConfig(config,stationModel);
                     if(config!=null){
-                        if(config.getVersion()> StationSdk.SDK_VERSION){
-                            Toast.makeText(getContext(),"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
-                        }else{
-                            StationManager.openStationWithout(getContext(),config,stationModel);
-                        }
-                    }else{
-                        Toast.makeText(getContext(),"Error:config is null",Toast.LENGTH_SHORT).show();
+                        editor.putString("config_"+stationModel.getStationId(), GsonUtils.getGson().toJson(config));
+                        editor.commit();
                     }
                 }else{
                     Toast.makeText(getContext(),"Error:response is null",Toast.LENGTH_SHORT).show();
@@ -239,6 +250,18 @@ public class SearchSchoolActivity extends AppCompatActivity {
                 Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void handleConfig(TinyConfig config,StationModel stationModel) {
+        if(config!=null){
+            if(config.getSupport()> StationSdk.SDK_VERSION){
+                Toast.makeText(getContext(),"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
+            }else{
+                StationManager.openStationWithout(getContext(),config,stationModel);
+            }
+        }else{
+            Toast.makeText(getContext(),"Error:config is null",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void toAdapterSameTypeActivity(String type,String js){

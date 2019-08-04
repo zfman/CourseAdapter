@@ -199,6 +199,17 @@ public class StationSdk {
 
     @JavascriptInterface
     @SuppressLint("SetJavaScriptEnabled")
+    public void loadingStart(){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.notifyLoadingStart();
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
     public void goback(){
         stationView.postThread(new IStationView.IMainRunner() {
             @Override
@@ -306,5 +317,11 @@ public class StationSdk {
     @SuppressLint("SetJavaScriptEnabled")
     public boolean isRegisterClipBoard(){
         return stationView.isRegisterClipBoard();
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public String getClipContent(){
+        return stationView.getClipContent();
     }
 }

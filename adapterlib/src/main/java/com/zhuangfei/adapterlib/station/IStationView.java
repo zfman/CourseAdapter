@@ -10,6 +10,7 @@ import android.webkit.WebView;
 public interface IStationView {
 
     int dp2px(int dp);
+    String getClipContent();
     void registerClipBoard(String regex);
     void unregisterClipBoard();
     boolean isRegisterClipBoard();
@@ -25,6 +26,7 @@ public interface IStationView {
     void setTitle(String title);
     void jumpPage(String page);
     void notifyLoadingFinish();
+    void notifyLoadingStart();
     void finish();
     void goback();
     SharedPreferences getSharedPreferences(String space);

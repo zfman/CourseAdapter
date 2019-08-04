@@ -40,6 +40,7 @@ import com.zhuangfei.adapterlib.station.IStationOperator;
 import com.zhuangfei.adapterlib.station.IStationView;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.utils.GsonUtils;
 import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.station.StationManager;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
@@ -48,6 +49,7 @@ import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.station.StationSdk;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -107,7 +109,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     boolean loadFinish=false;
     StationSdk stationSdk;
 
-    Timer timer=new Timer();
+    Timer timer;
     View statusBar;
     LinearLayout floatActionBar;
     IStationOperator stationOperator;
@@ -122,12 +124,12 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         initView();
         loadWebView();
         getStationById();
+
     }
 
     public void jumpPage(String page) {
         StationModel newStationModel = stationModel.copyModel();
-        int lastIndex = newStationModel.getUrl().lastIndexOf("/");
-        String newUrl = newStationModel.getUrl().substring(0, lastIndex + 1) + page;
+        String newUrl = StationManager.getBaseUrl()+tinyConfig.getName()+"/" + page;
         newStationModel.setUrl(newUrl);
         StationManager.openStationOtherPage(this, tinyConfig, newStationModel);
     }
@@ -244,9 +246,11 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     }
 
     private void startLoading() {
+        loadFinish=false;
         loadingViewLayout.setVisibility(View.VISIBLE);
         webView.setVisibility(View.GONE);
         currentLoading = 1;
+        timer=new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -258,6 +262,50 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
                 });
             }
         }, 0,300);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!loadFinish){
+                            notifyLoadingFinish();
+                        }
+                    }
+                });
+            }
+        },1800);
+    }
+
+    public void updateTinyConfig(){
+        String stationName=StationManager.getStationName(stationModel.getUrl());
+        if(TextUtils.isEmpty(stationName)) return;
+        TimetableRequest.getStationConfig(getContext(), stationName, new Callback<TinyConfig>() {
+            @Override
+            public void onResponse(Call<TinyConfig> call, Response<TinyConfig> response) {
+                if(response!=null){
+                    TinyConfig config=response.body();
+                    if(config!=null&&config.getVersion()>tinyConfig.getVersion()){
+                        SharedPreferences sp=getSharedPreferences("station_space_all", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor=sp.edit();
+                        editor.putString("config_"+stationModel.getStationId(), GsonUtils.getGson().toJson(config));
+                        editor.commit();
+
+                        tinyConfig=config;
+                        startLoading();
+                        webView.loadUrl(url);
+                        showMessage("配置文件更新，重新加载中..");
+                    }
+                }else{
+                    Toast.makeText(getContext(),"Error:response is null",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TinyConfig> call, Throwable t) {
+                Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private int getNextLoadingIndex() {
@@ -310,6 +358,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
             Toast.makeText(this, "传参异常", Toast.LENGTH_SHORT).show();
             finish();
         }
+        updateTinyConfig();
     }
 
     public void getStationById() {
@@ -442,7 +491,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
-                if (newProgress ==100){
+                if (newProgress >70&&!loadFinish){
                     notifyLoadingFinish();
                 }
             }
@@ -480,9 +529,15 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
 
     @Override
     public void notifyLoadingFinish(){
+        loadFinish=true;
         loadingViewLayout.setVisibility(View.GONE);
         webView.setVisibility(View.VISIBLE);
         timer.cancel();
+    }
+
+    @Override
+    public void notifyLoadingStart() {
+        startLoading();
     }
 
     @Override
@@ -516,7 +571,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
 
     @Override
     public Context getContext() {
-        return null;
+        return this;
     }
 
     @Override
@@ -602,6 +657,13 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     @Override
     public int dp2px(int dp) {
         return ScreenUtils.dip2px(this,dp);
+    }
+
+    @Override
+    public String getClipContent() {
+        String s=StationManager.getClipContent(this);
+        StationManager.clearClip(this);
+        return s;
     }
 
     @Override

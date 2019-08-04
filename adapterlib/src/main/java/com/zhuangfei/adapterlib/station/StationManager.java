@@ -34,6 +34,10 @@ import retrofit2.Response;
  * Created by Liu ZhuangFei on 2019/2/8.
  */
 public class StationManager {
+    public static String getBaseUrl(){
+        return "http://www.liuzhuangfei.com/apis/area/station/";
+    }
+
     public static void openStationWithout(Activity context, TinyConfig config,StationModel stationModel){
         if(context==null||stationModel==null) return;
         Intent intent=new Intent(context, StationWebViewActivity.class);
@@ -122,7 +126,7 @@ public class StationManager {
                 if(response!=null){
                     TinyConfig config=response.body();
                     if(config!=null){
-                        if(config.getVersion()> StationSdk.SDK_VERSION){
+                        if(config.getSupport()> StationSdk.SDK_VERSION){
                             Toast.makeText(context,"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
                         }else{
                             try {
