@@ -103,7 +103,7 @@ public class SearchSchoolAdapter extends BaseAdapter {
                     }
                 });
                 if (model != null) {
-                    holder.searchTitleView.setText("服务站");
+                    holder.searchTitleView.setText("小应用");
                     StationModel stationModel= (StationModel) model.getObject();
                     if(stationModel!=null){
 //                        Glide.with(context).load(stationModel.getImg())

@@ -25,4 +25,9 @@ public class DefaultStationOperator implements IStationOperator {
     public void updateLocalStation(StationModel stationModel) {
 
     }
+
+    @Override
+    public void initStation(StationModel thisModel) {
+
+    }
 }

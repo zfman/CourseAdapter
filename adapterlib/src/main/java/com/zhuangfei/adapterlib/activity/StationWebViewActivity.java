@@ -164,6 +164,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         if(stationOperator==null){
             stationOperator=new DefaultStationOperator();
         }
+        stationOperator.initStation(stationModel);
 
         try{
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewUtils.getStatusHeight(this));
