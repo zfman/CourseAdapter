@@ -85,7 +85,6 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     public static final String EXTRAS_STATION_IS_JUMP = "station_is_jump";
 
     LinearLayout rootLayout;
-    boolean haveLocal = false;
     int deleteId = -1;
 
     LinearLayout actionbarLayout;
@@ -427,13 +426,16 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
 
         public void onClick(View v) {
             if (v.getId() == R.id.pop_add_home) {
-                if (haveLocal) {
+                if (stationOperator.haveLocal()) {
+                    stationOperator.saveOrRemoveStation(stationModel);
+                    stationOperator.postUpdateStationEvent();
                     Toast.makeText(StationWebViewActivity.this, "已从主页删除", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!stationOperator.isCanSaveStaion()) {
                         Toast.makeText(StationWebViewActivity.this, "已达到最大数量限制15，请先删除其他服务站后尝试", Toast.LENGTH_SHORT).show();
                     } else {
                         stationOperator.saveOrRemoveStation(stationModel);
+                        stationOperator.postUpdateStationEvent();
                         Toast.makeText(StationWebViewActivity.this, "已添加到首页", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -556,7 +558,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
      * 弹出popupWindow
      */
     public void showMorePopWindow() {
-        popupWindow = new CustomPopWindow(StationWebViewActivity.this, haveLocal, itemsOnClick);
+        popupWindow = new CustomPopWindow(StationWebViewActivity.this, stationOperator.haveLocal(), itemsOnClick);
         popupWindow.showAtLocation(rootLayout,
                 Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {

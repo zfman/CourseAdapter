@@ -30,4 +30,9 @@ public class DefaultStationOperator implements IStationOperator {
     public void initStation(StationModel thisModel) {
 
     }
+
+    @Override
+    public boolean haveLocal() {
+        return false;
+    }
 }

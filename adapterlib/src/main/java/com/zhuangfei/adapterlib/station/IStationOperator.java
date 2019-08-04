@@ -13,4 +13,5 @@ public interface IStationOperator extends Serializable{
     void postUpdateStationEvent();
     void updateLocalStation(StationModel stationModel);
     void initStation(StationModel thisModel);
+    boolean haveLocal();
 }
