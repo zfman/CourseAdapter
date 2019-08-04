@@ -34,7 +34,7 @@ public class SearchSchoolAdapter extends BaseAdapter {
     private static final int TYPE_SCHOOL = 2;
     private static final int TYPE_COMMON = 1;
     private static final int TYPE_ITEM_COUNT = 3;
-    public static final int TYPE_STATION_MAX_SIZE= 3;
+    public static final int TYPE_STATION_MAX_SIZE= 5;
 
     private LayoutInflater mInflater = null;
 
@@ -106,21 +106,6 @@ public class SearchSchoolAdapter extends BaseAdapter {
                     holder.searchTitleView.setText("服务站");
                     StationModel stationModel= (StationModel) model.getObject();
                     if(stationModel!=null){
-                        Map<String,String> map= StationManager.getStationConfig(stationModel.getUrl());
-                        if(map!=null&&!map.isEmpty()){
-                            try {
-                                GradientDrawable drawable=new GradientDrawable();
-                                drawable.setCornerRadius(ScreenUtils.dip2px(context,25));
-                                drawable.setColor(Color.parseColor(map.get("statusColor")));
-                                holder.layout.setBackgroundDrawable(drawable);
-
-                                GradientDrawable drawable2=new GradientDrawable();
-                                drawable2.setCornerRadius(ScreenUtils.dip2px(context,3));
-                                drawable2.setColor(Color.parseColor(map.get("statusColor")));
-                                holder.stationTagView.setTextColor(Color.parseColor(map.get("statusColor")));
-                            }catch (Exception e){}
-                        }
-
 //                        Glide.with(context).load(stationModel.getImg())
 //                                .placeholder(R.drawable.ic_station_placeholder)
 //                                .error(R.drawable.ic_station_placeholder)

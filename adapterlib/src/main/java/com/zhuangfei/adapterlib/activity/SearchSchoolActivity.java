@@ -29,6 +29,7 @@ import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
+import com.zhuangfei.adapterlib.station.IStationOperator;
 import com.zhuangfei.adapterlib.station.StationManager;
 import com.zhuangfei.adapterlib.station.StationSdk;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
@@ -70,8 +71,11 @@ public class SearchSchoolActivity extends AppCompatActivity {
     boolean firstStatus=true;
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
+    public static final String EXTRA_STATION_OPERATOR="operator";
+
     SharedPreferences sp;
     SharedPreferences.Editor editor;
+    IStationOperator operator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +150,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
         });
         String searchKey=getIntent().getStringExtra(EXTRA_SEARCH_KEY);
         if(!TextUtils.isEmpty(searchKey)){
-            search(searchKey);
+            search("recommend://"+searchKey);
         }
+
+        operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
 
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -257,7 +263,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             if(config.getSupport()> StationSdk.SDK_VERSION){
                 Toast.makeText(getContext(),"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
             }else{
-                StationManager.openStationWithout(getContext(),config,stationModel);
+                StationManager.openStationWithout(getContext(),config,stationModel,operator);
             }
         }else{
             Toast.makeText(getContext(),"Error:config is null",Toast.LENGTH_SHORT).show();
@@ -310,6 +316,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
                 models.clear();
                 allDatas.clear();
                 searchAdapter.notifyDataSetChanged();
+                search("recommend://");
             } else {
                 search(charSequence.toString());
             }
@@ -456,8 +463,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
      * @param key 用于校验输入框是否发生了变化，如果变化，则忽略
      */
     private void showResult(AdapterResultV2 result,String key) {
-        if(!firstStatus&&searchEditText.getText()!=null&&key!=null&&!searchEditText.getText().toString().equals(key)){
-            return;
+        if(!firstStatus&&searchEditText.getText()!=null&&key!=null){
+            if(!searchEditText.getText().toString().startsWith("recommend://")){
+                if(!searchEditText.getText().toString().equals(key)) return;
+            }
         }
         if(result==null) return;
         baseJs=result.getBase();

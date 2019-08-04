@@ -13,12 +13,14 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.R;
+import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -38,21 +40,23 @@ public class StationManager {
         return "http://www.liuzhuangfei.com/apis/area/station/";
     }
 
-    public static void openStationWithout(Activity context, TinyConfig config,StationModel stationModel){
+    public static void openStationWithout(Activity context, TinyConfig config,StationModel stationModel,IStationOperator operator){
         if(context==null||stationModel==null) return;
         Intent intent=new Intent(context, StationWebViewActivity.class);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_MODEL,stationModel);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_CONFIG,config);
+        intent.putExtra(SearchSchoolActivity.EXTRA_STATION_OPERATOR, operator);
         context.startActivity(intent);
         context.overridePendingTransition(R.anim.anim_station_open_activity,R.anim.anim_station_static);//动画
     }
 
-    public static void openStationOtherPage(Activity context, TinyConfig config,StationModel stationModel){
+    public static void openStationOtherPage(Activity context, TinyConfig config,StationModel stationModel,IStationOperator operator){
         if(context==null||stationModel==null) return;
         Intent intent=new Intent(context, StationWebViewActivity.class);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_MODEL,stationModel);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_CONFIG,config);
         intent.putExtra(StationWebViewActivity.EXTRAS_STATION_IS_JUMP,true);
+        intent.putExtra(SearchSchoolActivity.EXTRA_STATION_OPERATOR, operator);
         context.startActivity(intent);
     }
 
@@ -93,7 +97,7 @@ public class StationManager {
         return url.substring(lastIndex2+1,lastIndex);
     }
 
-    public static void checkClip(Activity context){
+    public static void checkClip(Activity context,IStationOperator operator){
         String content=getClipContent(context);
         if(TextUtils.isEmpty(content)) return;
         SharedPreferences sp=context.getSharedPreferences("station_common_space",Context.MODE_PRIVATE);
@@ -109,7 +113,7 @@ public class StationManager {
         for(ClipBoardModel model:localClips){
             if(model!=null){
                 if(content.matches(model.getRegex())){
-                    getStationConfig(context,model.getStationModel(),content);
+                    getStationConfig(context,model.getStationModel(),content,operator);
                     break;
                 }
             }
@@ -117,7 +121,7 @@ public class StationManager {
         clearClip(context);
     }
 
-    public static void getStationConfig(final Activity context, final StationModel stationModel, final String content){
+    public static void getStationConfig(final Activity context, final StationModel stationModel, final String content, final IStationOperator operator){
         final String stationName=StationManager.getStationName(stationModel.getUrl());
         if(TextUtils.isEmpty(stationName)) return;
         TimetableRequest.getStationConfig(context, stationName, new Callback<TinyConfig>() {
@@ -134,7 +138,7 @@ public class StationManager {
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
-                            StationManager.openStationWithout(context,config,stationModel);
+                            StationManager.openStationWithout(context,config,stationModel,operator);
                         }
                     }else{
                         Toast.makeText(context,"Error:config is null",Toast.LENGTH_SHORT).show();

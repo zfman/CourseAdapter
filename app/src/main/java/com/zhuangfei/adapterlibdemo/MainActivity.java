@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0x123) {
-                StationManager.checkClip(MainActivity.this);
+                StationManager.checkClip(MainActivity.this,null);
             }
         }
     };

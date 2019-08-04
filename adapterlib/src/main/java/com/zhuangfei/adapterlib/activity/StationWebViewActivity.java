@@ -131,7 +131,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         StationModel newStationModel = stationModel.copyModel();
         String newUrl = StationManager.getBaseUrl()+tinyConfig.getName()+"/" + page;
         newStationModel.setUrl(newUrl);
-        StationManager.openStationOtherPage(this, tinyConfig, newStationModel);
+        StationManager.openStationOtherPage(this, tinyConfig, newStationModel,stationOperator);
     }
 
     private void initUrl() {
@@ -160,7 +160,10 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         loadingTipView3 = findViewById(R.id.id_loading_tip3);
         loadingViewLayout=findViewById(R.id.id_loadingview_layout);
 
-        stationOperator=new DefaultStationOperator();
+        stationOperator= (IStationOperator) getIntent().getSerializableExtra(SearchSchoolActivity.EXTRA_STATION_OPERATOR);
+        if(stationOperator==null){
+            stationOperator=new DefaultStationOperator();
+        }
 
         try{
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewUtils.getStatusHeight(this));
