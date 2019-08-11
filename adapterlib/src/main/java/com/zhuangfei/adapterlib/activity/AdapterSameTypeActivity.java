@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ public class AdapterSameTypeActivity extends AppCompatActivity {
 
     EditText nameEdit;
     TextView titleTextView;
+    ImageView backImageView;
 
     String js=null;
     int id = -1;
@@ -64,6 +66,14 @@ public class AdapterSameTypeActivity extends AppCompatActivity {
         }else{
             titleTextView.setText(type);
         }
+        backImageView=findViewById(R.id.id_back);
+        backImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
     }
 
     public void save() {

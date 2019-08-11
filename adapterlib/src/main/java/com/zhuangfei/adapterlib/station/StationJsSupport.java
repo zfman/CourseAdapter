@@ -38,6 +38,15 @@ public class StationJsSupport {
         }
     }
 
+    public void checkAndcallJs(String action,int code,String msg,String data) {
+        String realMethod="callback('"+action+"?code="+code+"&#;msg="+msg+"','"+data+"')";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            callEvaluateJavascriptCheck(realMethod);
+        } else { // 当Android SDK < 4.4时
+            callMethodCheck(realMethod);
+        }
+    }
+
     public void callJs(String method,String[] realdatas) {
         if(realdatas==null) callJs(method);
         else {

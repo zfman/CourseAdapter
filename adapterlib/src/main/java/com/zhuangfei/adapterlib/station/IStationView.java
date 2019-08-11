@@ -31,6 +31,8 @@ public interface IStationView {
     void goback();
     SharedPreferences getSharedPreferences(String space);
     void postThread(IMainRunner runner);
+    void getFromServer(String moduleName,String tag);
+    void putToServer(String moduleName,String value,String tag);
 
     interface IMainRunner{
         void done();

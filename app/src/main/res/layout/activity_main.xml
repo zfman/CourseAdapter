@@ -24,6 +24,12 @@
         android:layout_height="45dp"
         android:text="一键"/>
 
+    <Button
+        android:id="@+id/id_tiny_auth"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="Tiny授权"/>
+
     <LinearLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"

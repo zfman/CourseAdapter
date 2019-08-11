@@ -10,7 +10,9 @@ import com.zhuangfei.adapterlib.apis.model.HtmlSummary;
 import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
+import com.zhuangfei.adapterlib.apis.model.StationSpaceModel;
 import com.zhuangfei.adapterlib.apis.model.UserDebugModel;
+import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -65,4 +67,27 @@ public interface SchoolService {
     @POST(UrlContants.URL_GET_STATION_BY_ID)
     @FormUrlEncoded
     Call<ListResult<StationModel>> getStationById(@Field("id") int id);
+
+    @POST(UrlContants.URL_REGISTER_USER)
+    @FormUrlEncoded
+    Call<BaseResult> registerUser(@Field("name") String name,
+                                                @Field("password") String password);
+
+    @POST(UrlContants.URL_LOGIN_USER)
+    @FormUrlEncoded
+    Call<ObjResult<TinyUserInfo>> loginUser(@Field("name") String name,
+                                            @Field("password") String password);
+
+    @POST(UrlContants.URL_SET_STATION_SPACE)
+    @FormUrlEncoded
+    Call<BaseResult> setStationSpace(@Field("stationId") int stationId,
+                               @Field("moduleName") String moduleName,
+                                     @Field("token") String token,
+                                     @Field("value") String value);
+
+    @POST(UrlContants.URL_GET_STATION_SPACE)
+    @FormUrlEncoded
+    Call<ObjResult<StationSpaceModel>> getStationSpace(@Field("stationId") int stationId,
+                                                        @Field("moduleName") String moduleName,
+                                                        @Field("token") String token);
  }

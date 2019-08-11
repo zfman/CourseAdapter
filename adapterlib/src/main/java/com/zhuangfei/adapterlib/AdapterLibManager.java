@@ -14,8 +14,8 @@ public class AdapterLibManager {
     private static final String TAG = "AdapterLibManager";
 
     //核心库版本号
-    private static int libVersionNumber=3;
-    private static String libVersionName="lib-1.0.2";
+    private static int libVersionNumber=4;
+    private static String libVersionName="lib-1.0.3";
 
     //包名和appkey
     private static String appKey;

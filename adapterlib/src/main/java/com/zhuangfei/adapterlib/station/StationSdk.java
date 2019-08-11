@@ -21,11 +21,11 @@ public class StationSdk {
     private static final String TAG = "StationSdk";
     IStationView stationView;
     StationJsSupport jsSupport;
-    public static int SDK_VERSION = 2;
+    public static int SDK_VERSION = 3;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
 
-    public StationSdk(IStationView stationView, String space) {
+    public void init(IStationView stationView, String space){
         this.stationView = stationView;
         jsSupport = new StationJsSupport(stationView.getWebView());
         preferences = stationView.getSharedPreferences(space);
@@ -323,5 +323,27 @@ public class StationSdk {
     @SuppressLint("SetJavaScriptEnabled")
     public String getClipContent(){
         return stationView.getClipContent();
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void getFromServer(final String moduleName, final String tag){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.getFromServer(moduleName,tag);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @SuppressLint("SetJavaScriptEnabled")
+    public void putToServer(final String moduleName, final String value, final String tag){
+        stationView.postThread(new IStationView.IMainRunner() {
+            @Override
+            public void done() {
+                stationView.putToServer(moduleName,value,tag);
+            }
+        });
     }
 }

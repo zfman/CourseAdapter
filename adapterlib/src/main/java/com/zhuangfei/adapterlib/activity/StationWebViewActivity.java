@@ -35,11 +35,17 @@ import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.activity.custom.CustomPopWindow;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.activity.view.MyWebView;
+import com.zhuangfei.adapterlib.apis.model.BaseResult;
+import com.zhuangfei.adapterlib.apis.model.ObjResult;
+import com.zhuangfei.adapterlib.apis.model.StationSpaceModel;
 import com.zhuangfei.adapterlib.station.DefaultStationOperator;
 import com.zhuangfei.adapterlib.station.IStationOperator;
 import com.zhuangfei.adapterlib.station.IStationView;
+import com.zhuangfei.adapterlib.station.StationContants;
+import com.zhuangfei.adapterlib.station.UserManager;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 import com.zhuangfei.adapterlib.utils.GsonUtils;
 import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.station.StationManager;
@@ -48,6 +54,10 @@ import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.station.StationSdk;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -82,6 +92,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     public static final String EXTRAS_STATION_MODEL = "station_model_extras";
     public static final String EXTRAS_STATION_CONFIG = "station_config_extras";
     public static final String EXTRAS_STATION_IS_JUMP = "station_is_jump";
+    public static final String EXTRAS_STATION_SDK="station_sdk";
 
     LinearLayout rootLayout;
     int deleteId = -1;
@@ -111,6 +122,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     View statusBar;
     LinearLayout floatActionBar;
     IStationOperator stationOperator;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +185,11 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
             Log.e(TAG, "initView: ",e );
         }
 
-        stationSdk=new StationSdk(this, getStationSpace());
+        stationSdk= (StationSdk) getIntent().getSerializableExtra(EXTRAS_STATION_SDK);
+        if(stationSdk==null){
+            stationSdk=new StationSdk();
+        }
+        stationSdk.init(this, getStationSpace());
         startLoading();
 
 
@@ -276,7 +292,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
                     }
                 });
             }
-        },1800);
+        },2500);
     }
 
     public void updateTinyConfig(){
@@ -610,6 +626,86 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
             @Override
             public void run() {
                 runner.done();
+            }
+        });
+    }
+
+    @Override
+    public void getFromServer(String moduleName, final String tag) {
+        TinyUserInfo userInfo=UserManager.get(getContext()).getUserInfo();
+        if(userInfo==null||TextUtils.isEmpty(userInfo.getToken())){
+            stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_NEED_LOGIN,"请先登录",null);
+            Intent intent=new Intent(getContext(), TinyAuthActivity.class);
+            startActivity(intent);
+            return;
+        }
+        TimetableRequest.getStationSpace(getContext(), stationModel.getStationId(), moduleName, userInfo.getToken(), new Callback<ObjResult<StationSpaceModel>>() {
+            @Override
+            public void onResponse(Call<ObjResult<StationSpaceModel>> call, Response<ObjResult<StationSpaceModel>> response) {
+                ObjResult<StationSpaceModel> result=response.body();
+                if(result==null){
+                    stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,"result is null",null);
+                }else{
+                    if(result.getCode()==200){
+                        String data=GsonUtils.getGson().toJson(result);
+                        try {
+                            JSONObject obj=new JSONObject(data);
+                            JSONObject dataObj=obj.getJSONObject("data");
+                            String value=dataObj.getString("value");
+                            stationSdk.getJsSupport().checkAndcallJs(tag, StationContants.CODE_SUCCESS,"success",value);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,e.getMessage(),null);
+                        }
+                    }else if(result.getCode()==332){
+                        stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,result.getMsg(),null);
+                        Intent intent=new Intent(getContext(), TinyAuthActivity.class);
+                        startActivity(intent);
+                    }
+                    else{
+                        stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,result.getMsg(),null);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObjResult<StationSpaceModel>> call, Throwable t) {
+                stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,t.getMessage(),null);
+            }
+        });
+    }
+
+    @Override
+    public void putToServer(String moduleName, String value, final String tag) {
+        TinyUserInfo userInfo=UserManager.get(getContext()).getUserInfo();
+        if(userInfo==null||TextUtils.isEmpty(userInfo.getToken())){
+            stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_NEED_LOGIN,"请先登录",null);
+            Intent intent=new Intent(getContext(), TinyAuthActivity.class);
+            startActivity(intent);
+            return;
+        }
+        TimetableRequest.setStationSpace(getContext(), stationModel.getStationId(), moduleName, userInfo.getToken(),value, new Callback<BaseResult>() {
+            @Override
+            public void onResponse(Call<BaseResult> call, Response<BaseResult> response) {
+                BaseResult result=response.body();
+                if(result==null){
+                    stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,"result is null",null);
+                }else{
+                    if(result.getCode()==200){
+                        stationSdk.getJsSupport().checkAndcallJs(tag, StationContants.CODE_SUCCESS,"success",null);
+                    }else if(result.getCode()==332){
+                        stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,result.getMsg(),null);
+                        Intent intent=new Intent(getContext(), TinyAuthActivity.class);
+                        startActivity(intent);
+                    }else{
+                        stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,result.getMsg(),null);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BaseResult> call, Throwable t) {
+                stationSdk.getJsSupport().checkAndcallJs(tag,StationContants.CODE_ERROR,t.getMessage(),null);
             }
         });
     }

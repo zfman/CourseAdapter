@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -23,19 +25,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.AdapterLibManager;
 import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
+import com.zhuangfei.adapterlib.core.AssetTools;
 import com.zhuangfei.adapterlib.station.IStationOperator;
+import com.zhuangfei.adapterlib.station.IStationSearchOperator;
 import com.zhuangfei.adapterlib.station.StationManager;
 import com.zhuangfei.adapterlib.station.StationSdk;
+import com.zhuangfei.adapterlib.station.model.GreenFruitSchool;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 import com.zhuangfei.adapterlib.utils.GsonUtils;
 import com.zhuangfei.adapterlib.utils.Md5Security;
 import com.zhuangfei.adapterlib.utils.PackageUtils;
+import com.zhuangfei.adapterlib.utils.SoftInputUtils;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.AdapterResultV2;
@@ -72,10 +79,13 @@ public class SearchSchoolActivity extends AppCompatActivity {
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
     public static final String EXTRA_STATION_OPERATOR="operator";
+    public static final String EXTRA_STATION_SEARCH_OPERATOR="search_operator";
 
     SharedPreferences sp;
     SharedPreferences.Editor editor;
     IStationOperator operator;
+    List<GreenFruitSchool> allSchool;
+    IStationSearchOperator searchOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +94,34 @@ public class SearchSchoolActivity extends AppCompatActivity {
         ViewUtils.setStatusTextGrayColor(this);
         initView();
         inits();
+        loadSchools();
     }
+
+    private void loadSchools() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String schoolStr= AssetTools.readAssetFile(getContext(),"schools.txt");
+                TypeToken<List<GreenFruitSchool>> typeToken=new TypeToken<List<GreenFruitSchool>>(){};
+                List<GreenFruitSchool> school=new Gson().fromJson(schoolStr,typeToken.getType());
+                Message message=new Message();
+                message.obj=school;
+                message.what=0x123;
+                handler.sendMessage(message);
+            }
+        }).start();
+    }
+
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.obj!=null){
+                allSchool= (List<GreenFruitSchool>) msg.obj;
+            }
+        }
+    };
+
 
     @Override
     protected void onResume() {
@@ -151,10 +188,12 @@ public class SearchSchoolActivity extends AppCompatActivity {
         String searchKey=getIntent().getStringExtra(EXTRA_SEARCH_KEY);
         if(!TextUtils.isEmpty(searchKey)){
             search("recommend://"+searchKey);
+        }else{
+            search("recommend://");
         }
 
         operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
-
+        searchOperator= (IStationSearchOperator) getIntent().getSerializableExtra(EXTRA_STATION_SEARCH_OPERATOR);
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -182,18 +221,48 @@ public class SearchSchoolActivity extends AppCompatActivity {
         if(model==null) return;
         //通用算法解析
         if(model.getType()==SearchResultModel.TYPE_COMMON){
-            TemplateModel templateModel = (TemplateModel) model.getObject();
-            if (templateModel!=null){
+            Object templateObject=model.getObject();
+            if(templateObject instanceof List){
+                final List<TemplateModel> templateModels= (List<TemplateModel>) templateObject;
+                if(templateModels!=null){
+                    String[] items=new String[templateModels.size()];
+                    for(int r=0;r<items.length;r++){
+                        items[r]=templateModels.get(r).getTemplateName();
+                    }
+                    SoftInputUtils.hideInput(getContext());
+                    AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                            .setTitle("选择通用模板")
+                            .setItems(items, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    TemplateModel templateModel = (TemplateModel) templateModels.get(i);
+                                    if (templateModel!=null){
+                                        if(baseJs==null){
+                                            Toast.makeText(getContext(),"基础函数库发生异常，请联系qq:1193600556",Toast.LENGTH_SHORT).show();
+                                        }else if(templateModel.getTemplateTag().startsWith("custom/")){
+                                            Intent intent=new Intent(getContext(),AdapterTipActivity.class);
+                                            startActivity(intent);
+                                        }
+                                        else {
+                                            toAdapterSameTypeActivity(templateModel.getTemplateName(),templateModel.getTemplateJs());
+                                        }
+                                    }
+                                }
+                            });
+                    builder.create().show();
+                }
+            }else{
+                TemplateModel templateModel = (TemplateModel) model.getObject();
                 if(baseJs==null){
                     Toast.makeText(this,"基础函数库发生异常，请联系qq:1193600556",Toast.LENGTH_SHORT).show();
                 }else if(templateModel.getTemplateTag().startsWith("custom/")){
                     Intent intent=new Intent(this,AdapterTipActivity.class);
                     startActivity(intent);
-                }
-                else {
-                    toAdapterSameTypeActivity(templateModel.getTemplateName(),templateModel.getTemplateJs());
+                }else{
+                    Toast.makeText(this,"TemplateModel:"+templateModel.getTemplateTag(),Toast.LENGTH_SHORT).show();
                 }
             }
+
         }
         //学校教务导入
         else if(model.getType()==SearchResultModel.TYPE_SCHOOL){
@@ -218,6 +287,16 @@ public class SearchSchoolActivity extends AppCompatActivity {
                 }
 
             }
+        }
+        else if(model.getType()==SearchResultModel.TYPE_XIQUER){
+            GreenFruitSchool school = (GreenFruitSchool) model.getObject();
+            if(searchOperator!=null){
+                searchOperator.onXuqerItemClicked(school);
+            }
+//            GreenFruitSchool school = (GreenFruitSchool) model.getObject();
+//            ActivityTools.toActivityWithout(this, LoginActivity.class,
+//                    new BundleModel()
+//                            .put("selectSchool",school));
         }
         //服务站
         else{
@@ -428,16 +507,20 @@ public class SearchSchoolActivity extends AppCompatActivity {
     }
 
     private void showStationResult(List<StationModel> result,String key) {
-        if(!firstStatus&&searchEditText.getText()!=null&&key!=null&&!searchEditText.getText().toString().equals(key)){
-            return;
+        if(key!=null&&key.indexOf("recommend://")!=-1){
+        }else{
+            if(!firstStatus&&searchEditText.getText()!=null&&key!=null&&!searchEditText.getText().toString().equals(key)){
+                return;
+            }
         }
+
         if (result == null) return;
         List<SearchResultModel> addList=new ArrayList<>();
         for (int i=0;i<Math.min(result.size(),SearchSchoolAdapter.TYPE_STATION_MAX_SIZE);i++) {
             StationModel model=result.get(i);
             SearchResultModel searchResultModel = new SearchResultModel();
             searchResultModel.setType(SearchResultModel.TYPE_STATION);
-            if(result.size()>3){
+            if(result.size()>4){
                 searchResultModel.setType(SearchResultModel.TYPE_STATION_MORE);
             }
             searchResultModel.setObject(model);
@@ -463,8 +546,9 @@ public class SearchSchoolActivity extends AppCompatActivity {
      * @param key 用于校验输入框是否发生了变化，如果变化，则忽略
      */
     private void showResult(AdapterResultV2 result,String key) {
-        if(!firstStatus&&searchEditText.getText()!=null&&key!=null){
-            if(!searchEditText.getText().toString().startsWith("recommend://")){
+        if(key!=null&&key.indexOf("recommend://")!=-1){
+        }else{
+            if(!firstStatus&&searchEditText.getText()!=null&&key!=null){
                 if(!searchEditText.getText().toString().equals(key)) return;
             }
         }
@@ -477,11 +561,26 @@ public class SearchSchoolActivity extends AppCompatActivity {
         }
 
         if(templateModels!=null){
+            SearchResultModel searchResultModel = new SearchResultModel();
+            searchResultModel.setType(SearchResultModel.TYPE_COMMON);
+            searchResultModel.setObject(templateModels);
+            List<TemplateModel> findModels=new ArrayList<>();
             for (TemplateModel model : templateModels) {
-                if(firstStatus||(model.getTemplateName()!=null&&model.getTemplateName().indexOf(key)!=-1)){
+                if(firstStatus||(model.getTemplateName()!=null&&model.getTemplateName().toUpperCase().indexOf(key.toUpperCase())!=-1)){
+                    findModels.add(model);
+                }
+            }
+            if(!findModels.isEmpty()){
+                addModelToList(searchResultModel);
+            }
+        }
+
+        if(allSchool!=null){
+            for (GreenFruitSchool schoolBean : allSchool) {
+                if (schoolBean.getXxmc() != null && schoolBean.getXxmc().indexOf(key) != -1) {
                     SearchResultModel searchResultModel = new SearchResultModel();
-                    searchResultModel.setType(SearchResultModel.TYPE_COMMON);
-                    searchResultModel.setObject(model);
+                    searchResultModel.setType(SearchResultModel.TYPE_XIQUER);
+                    searchResultModel.setObject(schoolBean);
                     addModelToList(searchResultModel);
                 }
             }

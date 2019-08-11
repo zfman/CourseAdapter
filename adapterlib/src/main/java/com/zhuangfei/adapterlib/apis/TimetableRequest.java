@@ -2,6 +2,7 @@ package com.zhuangfei.adapterlib.apis;
 
 import android.content.Context;
 
+import com.zhuangfei.adapterlib.apis.model.School;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.apis.model.AdapterInfo;
 import com.zhuangfei.adapterlib.apis.model.AdapterResultV2;
@@ -11,9 +12,11 @@ import com.zhuangfei.adapterlib.apis.model.HtmlDetail;
 import com.zhuangfei.adapterlib.apis.model.HtmlSummary;
 import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
+import com.zhuangfei.adapterlib.apis.model.StationSpaceModel;
 import com.zhuangfei.adapterlib.apis.model.UserDebugModel;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -96,6 +99,33 @@ public class TimetableRequest {
         TinyService tinyService = ApiUtils.getRetrofitForStation(context)
                 .create(TinyService.class);
         Call<TinyConfig> call=tinyService.getStationConfig(stationName);
+        call.enqueue(callback);
+    }
+
+    public static void registerUser(Context context, String name,String password,Callback<BaseResult> callback) {
+        SchoolService service = ApiUtils.getRetrofitForSchool(context)
+                .create(SchoolService.class);
+        Call<BaseResult> call=service.registerUser(name,password);
+        call.enqueue(callback);
+    }
+    public static void loginUser(Context context, String name,String password,Callback<ObjResult<TinyUserInfo>> callback) {
+        SchoolService service = ApiUtils.getRetrofitForSchool(context)
+                .create(SchoolService.class);
+        Call<ObjResult<TinyUserInfo>> call=service.loginUser(name,password);
+        call.enqueue(callback);
+    }
+
+    public static void setStationSpace(Context context, int stationId,String moduleName,String token,String value,Callback<BaseResult> callback) {
+        SchoolService service = ApiUtils.getRetrofitForSchool(context)
+                .create(SchoolService.class);
+        Call<BaseResult> call=service.setStationSpace(stationId,moduleName,token,value);
+        call.enqueue(callback);
+    }
+
+    public static void getStationSpace(Context context, int stationId,String moduleName,String token,Callback<ObjResult<StationSpaceModel>> callback) {
+        SchoolService service = ApiUtils.getRetrofitForSchool(context)
+                .create(SchoolService.class);
+        Call<ObjResult<StationSpaceModel>> call=service.getStationSpace(stationId,moduleName,token);
         call.enqueue(callback);
     }
 }

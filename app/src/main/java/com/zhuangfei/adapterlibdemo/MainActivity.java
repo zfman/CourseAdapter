@@ -10,12 +10,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.AdapterLibManager;
 import com.zhuangfei.adapterlib.activity.OnceActivity;
+import com.zhuangfei.adapterlib.activity.TinyAuthActivity;
 import com.zhuangfei.adapterlib.callback.OnValueCallback;
 import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
@@ -23,14 +22,8 @@ import com.zhuangfei.adapterlib.ShareManager;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
 import com.zhuangfei.adapterlib.core.ParseResult;
 import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
-import com.zhuangfei.adapterlib.once.OnceManager;
-import com.zhuangfei.adapterlib.once.OnceRoute;
 import com.zhuangfei.adapterlib.station.StationManager;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent=new Intent(getContext(), OnceActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        findViewById(R.id.id_tiny_auth).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getContext(), TinyAuthActivity.class);
+                startActivity(intent);
             }
         });
         checkUpdate();
