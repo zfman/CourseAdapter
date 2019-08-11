@@ -131,6 +131,11 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             finish();
         }
         titleTextView.setText(school);
+        if(school.indexOf("河南理工")!=-1){
+            setUA(true);
+        }else {
+            setUA(false);
+        }
     }
 
     /**
@@ -171,6 +176,11 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             //河南理工大学教务兼容性处理
             if (webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
                 webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
+            }
+
+            if(webView.getUrl().startsWith("https://vpn.hpu.edu.cn/por/service.csp?")){
+                setUA(false);
+                webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97/");
             }
         }
     }
@@ -378,17 +388,25 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                     }
                 }
                 if(item.getItemId()==R.id.id_menu3){
-                    webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36");
+                    setUA(false);
                     webView.reload();
                 }
 
                 if(item.getItemId()==R.id.id_menu4){
-                    webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 7.1.1; Mi Note 3 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.98 Mobile Safari/537.36");
+                    setUA(true);
                     webView.reload();
                 }
                 return false;
             }
         });
         popup.show();
+    }
+
+    public void setUA(boolean mobile){
+        if(mobile){
+            webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 7.1.1; Mi Note 3 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.98 Mobile Safari/537.36");
+        }else{
+            webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36");
+        }
     }
 }
