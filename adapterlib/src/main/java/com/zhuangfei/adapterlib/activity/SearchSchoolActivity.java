@@ -79,13 +79,11 @@ public class SearchSchoolActivity extends AppCompatActivity {
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
     public static final String EXTRA_STATION_OPERATOR="operator";
-    public static final String EXTRA_STATION_SEARCH_OPERATOR="search_operator";
 
     SharedPreferences sp;
     SharedPreferences.Editor editor;
     IStationOperator operator;
     List<GreenFruitSchool> allSchool;
-    IStationSearchOperator searchOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +191,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
         }
 
         operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
-        searchOperator= (IStationSearchOperator) getIntent().getSerializableExtra(EXTRA_STATION_SEARCH_OPERATOR);
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -290,9 +287,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
         }
         else if(model.getType()==SearchResultModel.TYPE_XIQUER){
             GreenFruitSchool school = (GreenFruitSchool) model.getObject();
-            if(searchOperator!=null){
-                searchOperator.onXuqerItemClicked(school);
-            }
+            onXuqerItemClicked(school);
 //            GreenFruitSchool school = (GreenFruitSchool) model.getObject();
 //            ActivityTools.toActivityWithout(this, LoginActivity.class,
 //                    new BundleModel()
@@ -302,6 +297,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
         else{
             getStationConfig((StationModel) model.getObject());
         }
+    }
+
+    public void onXuqerItemClicked(GreenFruitSchool school){
+        Toast.makeText(getContext(),"请子类重写该方法",Toast.LENGTH_SHORT).show();
     }
 
     public void getStationConfig(final StationModel stationModel){

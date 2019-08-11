@@ -1,6 +1,8 @@
 package com.zhuangfei.adapterlib.activity.adapter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.station.model.GreenFruitSchool;
+import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.utils.GsonUtils;
 import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.apis.model.School;
@@ -45,12 +49,14 @@ public class SearchSchoolAdapter extends BaseAdapter {
     List<SearchResultModel> allData;
     Activity context;
     String schoolName="unknow";
+    SharedPreferences sp;
 
     public SearchSchoolAdapter(Activity context, List<SearchResultModel> allData, List<SearchResultModel> list) {
         this.mInflater = LayoutInflater.from(context);
         this.context = context;
         this.list=list;
         this.allData=allData;
+        sp=context.getSharedPreferences("station_space_all", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -105,10 +111,24 @@ public class SearchSchoolAdapter extends BaseAdapter {
                         notifyDataSetChanged();
                     }
                 });
+
+
                 if (model != null) {
                     holder.searchTitleView.setText("小应用");
                     StationModel stationModel= (StationModel) model.getObject();
                     if(stationModel!=null){
+
+                        String config=sp.getString("config_"+stationModel.getStationId(),null);
+                        if(config==null){
+
+                        }
+                        TinyConfig tinyConfig=GsonUtils.getGson().fromJson(config,TinyConfig.class);
+                        if(tinyConfig!=null){
+                            holder.layout.setBackgroundColor(Color.parseColor(tinyConfig.getTheme().getPrimaryColor()));
+                        }else{
+
+                        }
+
                         Glide.with(context).load(stationModel.getImg())
                                 .placeholder(R.drawable.ic_station_placeholder)
                                 .error(R.drawable.ic_station_placeholder)

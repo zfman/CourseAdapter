@@ -311,8 +311,8 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
 
                         tinyConfig=config;
                         startLoading();
-                        webView.loadUrl(url);
-                        showMessage("配置文件更新，重新加载中..");
+                        showMessage("配置文件更新，请重新进入");
+                        finish();
                     }
                 }else{
                     Toast.makeText(getContext(),"Error:response is null",Toast.LENGTH_SHORT).show();
