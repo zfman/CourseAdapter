@@ -20,11 +20,11 @@ import java.util.List;
  */
 public class StationSdk implements Serializable{
     private static final String TAG = "StationSdk";
-    IStationView stationView;
-    StationJsSupport jsSupport;
+    protected IStationView stationView;
+    protected StationJsSupport jsSupport;
     public static int SDK_VERSION = 3;
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
+    protected SharedPreferences preferences;
+    protected SharedPreferences.Editor editor;
 
     public void init(IStationView stationView, String space){
         this.stationView = stationView;
