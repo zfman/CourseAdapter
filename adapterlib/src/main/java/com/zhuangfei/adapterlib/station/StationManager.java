@@ -50,6 +50,17 @@ public class StationManager {
         context.overridePendingTransition(R.anim.anim_station_open_activity,R.anim.anim_station_static);//动画
     }
 
+    public static void openStationWithout(Activity context, TinyConfig config,StationModel stationModel,IStationOperator operator,StationSdk sdk){
+        if(context==null||stationModel==null) return;
+        Intent intent=new Intent(context, StationWebViewActivity.class);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_MODEL,stationModel);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_CONFIG,config);
+        intent.putExtra(SearchSchoolActivity.EXTRA_STATION_OPERATOR, operator);
+        intent.putExtra(StationWebViewActivity.EXTRAS_STATION_SDK, sdk);
+        context.startActivity(intent);
+        context.overridePendingTransition(R.anim.anim_station_open_activity,R.anim.anim_station_static);//动画
+    }
+
     public static void openStationOtherPage(Activity context, TinyConfig config,StationModel stationModel,IStationOperator operator){
         if(context==null||stationModel==null) return;
         Intent intent=new Intent(context, StationWebViewActivity.class);

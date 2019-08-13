@@ -95,6 +95,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
         loadSchools();
     }
 
+    protected StationSdk getStationSdk(){
+        return new StationSdk();
+    }
+
     private void loadSchools() {
         new Thread(new Runnable() {
             @Override
@@ -119,7 +123,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
             }
         }
     };
-
 
     @Override
     protected void onResume() {
@@ -341,7 +344,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             if(config.getSupport()> StationSdk.SDK_VERSION){
                 Toast.makeText(getContext(),"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
             }else{
-                StationManager.openStationWithout(getContext(),config,stationModel,operator);
+                StationManager.openStationWithout(getContext(),config,stationModel,operator,getStationSdk());
             }
         }else{
             Toast.makeText(getContext(),"Error:config is null",Toast.LENGTH_SHORT).show();

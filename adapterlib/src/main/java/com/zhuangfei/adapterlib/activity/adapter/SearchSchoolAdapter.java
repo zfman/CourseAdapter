@@ -118,16 +118,16 @@ public class SearchSchoolAdapter extends BaseAdapter {
                     StationModel stationModel= (StationModel) model.getObject();
                     if(stationModel!=null){
 
-                        String config=sp.getString("config_"+stationModel.getStationId(),null);
-                        if(config==null){
-
-                        }
-                        TinyConfig tinyConfig=GsonUtils.getGson().fromJson(config,TinyConfig.class);
-                        if(tinyConfig!=null){
-                            holder.layout.setBackgroundColor(Color.parseColor(tinyConfig.getTheme().getPrimaryColor()));
-                        }else{
-
-                        }
+//                        String config=sp.getString("config_"+stationModel.getStationId(),null);
+//                        if(config==null){
+//
+//                        }
+//                        TinyConfig tinyConfig=GsonUtils.getGson().fromJson(config,TinyConfig.class);
+//                        if(tinyConfig!=null){
+//                            holder.layout.setBackgroundColor(Color.parseColor(tinyConfig.getTheme().getPrimaryColor()));
+//                        }else{
+//
+//                        }
 
                         Glide.with(context).load(stationModel.getImg())
                                 .placeholder(R.drawable.ic_station_placeholder)

@@ -409,4 +409,18 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36");
         }
     }
+
+    @Override
+    public void finish() {
+        webView.loadUrl("about:blank");
+        super.finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(webView!=null){
+            webView.destroy();
+        }
+    }
 }

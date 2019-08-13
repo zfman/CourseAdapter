@@ -11,13 +11,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Liu ZhuangFei on 2019/2/6.
  */
-public class StationSdk {
+public class StationSdk implements Serializable{
     private static final String TAG = "StationSdk";
     IStationView stationView;
     StationJsSupport jsSupport;
