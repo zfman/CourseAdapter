@@ -15,6 +15,8 @@ import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -396,6 +398,9 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                     setUA(true);
                     webView.reload();
                 }
+                if(item.getItemId()==R.id.id_menu5){
+                    webView.loadUrl("https://vpn.hpu.edu.cn/por/logout.csp?rnd=7456390069064507");
+                }
                 return false;
             }
         });
@@ -411,16 +416,12 @@ public class AdapterSchoolActivity extends AppCompatActivity {
     }
 
     @Override
-    public void finish() {
-        webView.loadUrl("about:blank");
-        super.finish();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if(webView!=null){
             webView.destroy();
         }
+        CookieSyncManager.createInstance(this);
+        CookieManager.getInstance().removeAllCookie();
     }
 }
