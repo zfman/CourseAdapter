@@ -15,13 +15,6 @@
             android:background="@color/app_white"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <EditText
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/id_edit"/>
-
     </LinearLayout>
 
     <LinearLayout
@@ -32,7 +25,6 @@
         android:gravity="center_vertical|right"
         android:background="@color/app_gray_f0f0f0">
         <TextView
-            android:visibility="gone"
             android:id="@+id/tv_display"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -44,13 +36,6 @@
             android:layout_height="match_parent"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"/>
-        <EditText
-            android:id="@+id/id_editor"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:maxLines="6"
-            android:hint="输入Js"/>
 
         <TextView
             android:id="@+id/tv_webview_code"
