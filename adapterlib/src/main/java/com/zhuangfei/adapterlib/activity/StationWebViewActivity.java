@@ -552,7 +552,9 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     public void notifyLoadingFinish(){
         loadFinish=true;
         loadingViewLayout.setVisibility(View.GONE);
-        webView.setVisibility(View.VISIBLE);
+        if(webView!=null){
+            webView.setVisibility(View.VISIBLE);
+        }
         timer.cancel();
     }
 

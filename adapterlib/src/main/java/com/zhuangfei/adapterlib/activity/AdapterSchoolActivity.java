@@ -176,13 +176,15 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             else loadingProgressBar.show();
 
             //河南理工大学教务兼容性处理
-            if (webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
-                webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
-            }
+            if(webView.getUrl()!=null){
+                if (webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
+                    webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
+                }
 
-            if(webView.getUrl().startsWith("https://vpn.hpu.edu.cn/por/service.csp?")){
-                setUA(false);
-                webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97/");
+                if(webView.getUrl().startsWith("https://vpn.hpu.edu.cn/por/service.csp?")){
+                    setUA(false);
+                    webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97/");
+                }
             }
         }
     }
