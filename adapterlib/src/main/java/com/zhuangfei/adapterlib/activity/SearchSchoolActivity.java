@@ -64,7 +64,7 @@ import retrofit2.Response;
 public class SearchSchoolActivity extends AppCompatActivity {
 
     private static final String TAG = "SearchSchoolActivity";
-    Activity context;
+    protected Activity context;
 
     ListView searchListView;
     List<SearchResultModel> models;
@@ -81,7 +81,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
     public static final String EXTRA_STATION_OPERATOR="operator";
-    public static final String EXTRA_ADAPTER_OPERATOR="adapter_operator";
 
     SharedPreferences sp;
     SharedPreferences.Editor editor;
@@ -197,10 +196,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             search("recommend://");
         }
 
-        adapterOperator= (IAdapterOperator) getIntent().getSerializableExtra(EXTRA_ADAPTER_OPERATOR);
-        if(adapterOperator==null){
-            adapterOperator=new DefaultAdapterOperator(getContext());
-        }
+        adapterOperator= getAdapterOperator();
 
         operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
@@ -328,6 +324,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
         else{
             getStationConfig((StationModel) model.getObject());
         }
+    }
+
+    protected IAdapterOperator getAdapterOperator(){
+        return new DefaultAdapterOperator(getContext());
     }
 
     public void onXuqerItemClicked(GreenFruitSchool school){
