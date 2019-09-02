@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.callback.DefaultAdapterOperator;
+import com.zhuangfei.adapterlib.callback.IAdapterOperator;
 import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
@@ -79,11 +81,13 @@ public class SearchSchoolActivity extends AppCompatActivity {
     public static final int RESULT_CODE=10;
     public static final String EXTRA_SEARCH_KEY="key";
     public static final String EXTRA_STATION_OPERATOR="operator";
+    public static final String EXTRA_ADAPTER_OPERATOR="adapter_operator";
 
     SharedPreferences sp;
     SharedPreferences.Editor editor;
     IStationOperator operator;
     List<GreenFruitSchool> allSchool;
+    IAdapterOperator adapterOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,6 +197,11 @@ public class SearchSchoolActivity extends AppCompatActivity {
             search("recommend://");
         }
 
+        adapterOperator= (IAdapterOperator) getIntent().getSerializableExtra(EXTRA_ADAPTER_OPERATOR);
+        if(adapterOperator==null){
+            adapterOperator=new DefaultAdapterOperator(getContext());
+        }
+
         operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -283,9 +292,28 @@ public class SearchSchoolActivity extends AppCompatActivity {
                         Toast.makeText(this,"通用解析模板发生异常，请联系qq:1193600556",Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
+                    if(school.equals("南京艺术学院")){
+                        if(!adapterOperator.isVip()){
+                            toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
+                        }else{
+                            AlertDialog.Builder builder=new AlertDialog.Builder(this)
+                                    .setTitle("本校功能为高级版功能")
+                                    .setMessage("本校的教务处理非常复杂，需要两个页面结合才可以把完整的数据解析出来，这需要我改动很大的地方才可以支持这种结构，希望大家不要骂我。这个功能我是在晚上下班后做到凌晨1点多的，所以我也是很辛苦的，感谢大家的理解，请开通高级版后再导入，高级版功能3.3元/3个月以及8.8/12个月")
+                                    .setPositiveButton("开通高级版", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            adapterOperator.gotoVip();
+                                            if(dialogInterface!=null){
+                                                dialogInterface.dismiss();
+                                            }
+                                        }
+                                    }).setNegativeButton("取消",null);
+                            builder.create().show();
+                        }
+                    }else{
+                        toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
+                    }
                 }
-
             }
         }
         else if(model.getType()==SearchResultModel.TYPE_XIQUER){

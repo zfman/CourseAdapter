@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -76,6 +78,7 @@ public class UploadHtmlActivity extends AppCompatActivity {
         helpView=findViewById(R.id.id_webview_help);
         webView=findViewById(R.id.id_webview);
         displayTextView=findViewById(R.id.tv_display);
+
         findViewById(R.id.id_webview_help).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -138,6 +141,9 @@ public class UploadHtmlActivity extends AppCompatActivity {
         jsSupport=new JsSupport(webView);
         jsSupport.applyConfig(this,new MyWebViewCallback());
         webView.addJavascriptInterface(new ShowSourceJs(), "source");
+        if(school.equals("南京艺术学院")){
+            webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
+        }
         webView.loadUrl(url);
     }
 
@@ -155,6 +161,10 @@ public class UploadHtmlActivity extends AppCompatActivity {
             //河南理工大学教务兼容性处理
             if (webView.getUrl()!=null&&webView.getUrl().startsWith("https://vpn.hpu.edu.cn/web/1/http/1/218.196.240.97/loginAction.do")) {
                 webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
+            }
+
+            if(webView.getUrl().equals("http://210.28.48.52/student2/studentWeb.asp")){
+                webView.loadUrl("http://210.28.48.52/student2/student_kbtemp.asp");
             }
         }
     }

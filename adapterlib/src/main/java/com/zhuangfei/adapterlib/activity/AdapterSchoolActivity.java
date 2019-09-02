@@ -32,6 +32,8 @@ import com.zhuangfei.adapterlib.core.JsSupport;
 import com.zhuangfei.adapterlib.core.ParseResult;
 import com.zhuangfei.adapterlib.core.SpecialArea;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 适配学校页面
@@ -74,6 +76,12 @@ public class AdapterSchoolActivity extends AppCompatActivity {
     public static final String EXTRA_TYPE="type";
 
     public int nowIndex=0;
+    public boolean isNanjingArtSchool=false;
+    int step=0;
+
+    TextView tv;
+    boolean loadStep1=false;
+    boolean loadStep2=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +107,8 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                 finish();
             }
         });
-        findViewById(R.id.tv_webview_parse).setOnClickListener(new View.OnClickListener() {
+        tv= findViewById(R.id.tv_webview_parse);
+        tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onBtnClicked();
@@ -132,6 +141,13 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             Toast.makeText(this,"js is null,结果不可预期",Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        if(school.equals("南京艺术学院")){
+            isNanjingArtSchool=true;
+            tv.setClickable(false);
+            tv.setText("自动获取");
+        }
+
         titleTextView.setText(school);
         if(school.indexOf("河南理工")!=-1){
             setUA(true);
@@ -148,6 +164,9 @@ public class AdapterSchoolActivity extends AppCompatActivity {
         jsSupport = new JsSupport(webView);
         specialArea = new SpecialArea(this, new MyCallback());
         jsSupport.applyConfig(this, new MyWebViewCallback());
+        if(isNanjingArtSchool){
+            webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
+        }
         webView.addJavascriptInterface(specialArea, "sa");
 
         webView.loadUrl(url);
@@ -163,7 +182,7 @@ public class AdapterSchoolActivity extends AppCompatActivity {
     class MyWebViewCallback implements IArea.WebViewCallback {
 
         @Override
-        public void onProgressChanged(int newProgress) {
+        public void onProgressChanged(final int newProgress) {
             //进度更新
             loadingProgressBar.setProgress(newProgress);
             if(newProgress>0&&newProgress!=100){
@@ -185,6 +204,21 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                     setUA(false);
                     webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97/");
                 }
+
+                if(webView.getUrl().equals("http://210.28.48.52/student2/studentWeb.asp")){
+                    displayTextView.setText("预测:前往课表页面 "+newProgress+"%...");
+                    webView.loadUrl("http://210.28.48.52/student2/student_kbtemp.asp");
+                }
+                if(newProgress==100&&webView.getUrl().startsWith("http://210.28.48.52/student2/student_kb2.asp?studentCode=")){
+                    displayTextView.setText("预测:解析教室 "+newProgress+"%...");
+                    step=1;
+                    jsSupport.getPageHtml("sa");
+                }
+                if(newProgress==100&&webView.getUrl().equals("http://210.28.48.52/student2/save_xkdNew.asp")){
+                    displayTextView.setText("预测:解析课程 "+newProgress+"%...");
+                    step=2;
+                    jsSupport.getPageHtml("sa");
+                }
             }
         }
     }
@@ -200,23 +234,34 @@ public class AdapterSchoolActivity extends AppCompatActivity {
         @Override
         public void onFindTags(final String[] tags) {
             displayTextView.setText("预测:选择解析标签");
-            AlertDialog.Builder builder = new AlertDialog.Builder(context());
-            builder.setTitle("请选择解析标签");
-            builder.setCancelable(false);
-            builder.setItems(tags, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    jsSupport.callJs("parse('" + tags[i] + "')");
-                    displayTextView.setText("预测:解析 "+tags[i]);
+            if(isNanjingArtSchool){
+                if(step>0){
+                    jsSupport.callJs("parse('" + tags[step-1] + "')");
+                    displayTextView.setText("预测:解析 "+tags[step-1]);
                 }
-            });
-            builder.create().show();
+            }else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(context());
+                builder.setTitle("请选择解析标签");
+                builder.setCancelable(false);
+                builder.setItems(tags, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        jsSupport.callJs("parse('" + tags[i] + "')");
+                        displayTextView.setText("预测:解析 "+tags[i]);
+                    }
+                });
+                builder.create().show();
+            }
         }
 
         @Override
         public void onNotFindResult() {
-            onError("未发现匹配");
-            finish();
+            if(isNanjingArtSchool&&step==1){
+                webView.loadUrl("http://210.28.48.52/student2/save_xkdNew.asp");
+            }else{
+                onError("未发现匹配");
+                finish();
+            }
         }
 
         @Override
@@ -306,7 +351,7 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                         handler.sendMessage(message);
                         return;
                     }
-                    if(html.indexOf("星期一")!=-1&&html.indexOf("星期二")!=-1&&html.indexOf("星期三")!=-1){
+                    if(html.indexOf("上课")!=-1&&html.indexOf("星期一")!=-1&&html.indexOf("星期二")!=-1&&html.indexOf("星期三")!=-1){
                         message.obj="预测:教务类型未知";
                         handler.sendMessage(message);
                         return;
