@@ -15,6 +15,7 @@ import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.BaseResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
+import com.zhuangfei.adapterlib.station.TinyUserManager;
 import com.zhuangfei.adapterlib.station.UserManager;
 import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
@@ -105,7 +106,7 @@ public class TinyAuthActivity extends AppCompatActivity implements View.OnClickL
                 if(result!=null){
                     if(result.getCode()==200){
                         Toast.makeText(getContext(),"登录成功",Toast.LENGTH_SHORT).show();
-                        UserManager.get(getContext()).saveUserInfo(result.getData());
+                        TinyUserManager.get(getContext()).saveUserInfo(result.getData());
                         finish();
                     }else{
                         Toast.makeText(getContext(),result.getMsg(),Toast.LENGTH_SHORT).show();

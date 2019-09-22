@@ -115,6 +115,13 @@ public class TimetableRequest {
         call.enqueue(callback);
     }
 
+    public static void updateToken(Context context, String token,String time,String sign,String packageName,String appkey,Callback<ObjResult<TinyUserInfo>> callback) {
+        SchoolService service = ApiUtils.getRetrofitForSchool(context)
+                .create(SchoolService.class);
+        Call<ObjResult<TinyUserInfo>> call=service.updateToken(token,time,sign,packageName,appkey);
+        call.enqueue(callback);
+    }
+
     public static void setStationSpace(Context context, int stationId,String moduleName,String token,String value,Callback<BaseResult> callback) {
         SchoolService service = ApiUtils.getRetrofitForSchool(context)
                 .create(SchoolService.class);

@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 
 /**
+ * @deprecated 请使用
+ * @see TinyUserManager
  * Created by Liu ZhuangFei on 2019/8/10.
  */
 public class UserManager {

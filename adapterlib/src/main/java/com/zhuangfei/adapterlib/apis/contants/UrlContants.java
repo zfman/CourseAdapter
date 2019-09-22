@@ -57,6 +57,8 @@ public class UrlContants {
 
     public final static String URL_LOGIN_USER="index.php?c=Adapter&a=loginUser";
 
+    public final static String URL_UPDATE_TOKEN="index.php?c=Adapter&a=updateToken";
+
     public final static String URL_SET_STATION_SPACE="index.php?c=Adapter&a=setStationSpace";
 
     public final static String URL_GET_STATION_SPACE="index.php?c=Adapter&a=getStationSpace";
