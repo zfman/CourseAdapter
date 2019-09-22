@@ -163,7 +163,7 @@ public class UploadHtmlActivity extends AppCompatActivity {
                 webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/2/218.196.240.97/xkAction.do?actionType=6");
             }
 
-            if(webView.getUrl().equals("http://210.28.48.52/student2/studentWeb.asp")){
+            if(webView.getUrl()!=null&&webView.getUrl().equals("http://210.28.48.52/student2/studentWeb.asp")){
                 webView.loadUrl("http://210.28.48.52/student2/student_kbtemp.asp");
             }
         }
