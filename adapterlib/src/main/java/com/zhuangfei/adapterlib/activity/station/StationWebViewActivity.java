@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.station;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,7 +23,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -32,9 +31,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.zhuangfei.adapterlib.activity.custom.CustomPopWindow;
 import com.zhuangfei.adapterlib.R;
-import com.zhuangfei.adapterlib.activity.view.MyWebView;
+import com.zhuangfei.adapterlib.activity.school.SearchSchoolActivity;
 import com.zhuangfei.adapterlib.apis.model.BaseResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.StationSpaceModel;
@@ -42,6 +40,7 @@ import com.zhuangfei.adapterlib.station.DefaultStationOperator;
 import com.zhuangfei.adapterlib.station.IStationOperator;
 import com.zhuangfei.adapterlib.station.IStationView;
 import com.zhuangfei.adapterlib.station.StationContants;
+import com.zhuangfei.adapterlib.station.TinyUserManager;
 import com.zhuangfei.adapterlib.station.UserManager;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
@@ -55,11 +54,9 @@ import com.zhuangfei.adapterlib.apis.model.ListResult;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.station.StationSdk;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -106,7 +103,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     LinearLayout buttonGroupLayout;
     View diverView;//分隔竖线
 
-    int needUpdate = 0;
+    int needUpdate = 1;
 
     View loadingTipView1;
     View loadingTipView2;
@@ -147,7 +144,6 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
     private void initUrl() {
         url = StationManager.getRealUrl(stationModel.getUrl());
         title = stationModel.getName();
-        needUpdate = 0;
     }
 
     private void initView() {
@@ -292,7 +288,7 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
                     }
                 });
             }
-        },2500);
+        },2000);
     }
 
     public void updateTinyConfig(){
@@ -407,6 +403,13 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         if (result == null || result.size() == 0) return;
         final StationModel model = result.get(0);
         if (model != null) {
+            if(this.stationModel.isDisplayAfterRequest()){
+                this.stationModel=model;
+                title = stationModel.getName();
+                titleTextView.setText(title);
+                titleTextView2.setText(title);
+            }
+
             boolean update = false;
             if (model.getName() != null && !model.getName().equals(stationModel.getName())) {
                 update = true;
@@ -481,6 +484,11 @@ public class StationWebViewActivity extends AppCompatActivity implements IStatio
         settings.setDefaultTextEncodingName("gb2312");
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setDomStorageEnabled(true);
+        String ua=webView.getSettings().getUserAgentString();
+        if(ua!=null){
+            ua=ua+" stationSdk/"+StationSdk.SDK_VERSION+" token/"+ TinyUserManager.get(this).getToken();
+        }
+        webView.getSettings().setUserAgentString(ua);
         webView.addJavascriptInterface(stationSdk, "sdk");
         webView.setDownloadListener(new DownloadListener() {
             @Override

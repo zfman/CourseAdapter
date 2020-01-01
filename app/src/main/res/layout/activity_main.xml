@@ -11,7 +11,12 @@
         android:id="@+id/id_search"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:text="打开搜索界面"/>
+        android:text="打开搜索界面(无怪兽号)"/>
+    <Button
+        android:id="@+id/id_search2"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="打开搜索界面2(有怪兽号)"/>
 
     <Button
         android:id="@+id/id_about"

@@ -1,7 +1,6 @@
 package com.zhuangfei.adapterlibdemo;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -12,16 +11,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.zhuangfei.adapterlib.AdapterLibManager;
-import com.zhuangfei.adapterlib.activity.OnceActivity;
-import com.zhuangfei.adapterlib.activity.TinyAuthActivity;
+import com.zhuangfei.adapterlib.activity.station.TinyAuthActivity;
 import com.zhuangfei.adapterlib.callback.OnValueCallback;
-import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.ShareManager;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
 import com.zhuangfei.adapterlib.core.ParseResult;
-import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
+import com.zhuangfei.adapterlib.activity.school.SearchSchoolActivity;
 import com.zhuangfei.adapterlib.station.StationManager;
 import java.util.List;
 
@@ -45,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent,REQUEST_CODE);
             }
         });
+        findViewById(R.id.id_search2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MainActivity.this, SearchSchoolActivity.class);
+                intent.putExtra(SearchSchoolActivity.EXTRA_TINY_APP_ENABLE,true);
+                startActivityForResult(intent,REQUEST_CODE);
+            }
+        });
         findViewById(R.id.id_about).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,14 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 }catch (Exception e){}
             }
         });
-        findViewById(R.id.id_once).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(getContext(), OnceActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
 
         findViewById(R.id.id_tiny_auth).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        checkUpdate();
     }
 
     @Override
@@ -93,35 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
     public Context getContext() {
          return this;
-    }
-
-    private void checkUpdate() {
-        String updateId="a1da087f512cf8ea546c8801904dacfe";
-        AdapterLibManager.checkUpdate(context,updateId, new OnVersionFindCallback() {
-            @Override
-            public void onNewVersionFind(int newNumber, String newVersionName, String newVersionDesc) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                            .setTitle("发现新版本-v" + newVersionName)
-                            .setMessage("更新日志:\n" + newVersionDesc)
-                            .setCancelable(false)
-                            .setPositiveButton("去看看", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    try{
-                                        Intent intent = new Intent();
-                                        intent.setAction("android.intent.action.VIEW");
-                                        intent.setData(Uri.parse("com.zhuangfei.adapterlibdemo"));
-                                        context.startActivity(intent);
-                                    }catch (Exception e){}
-                                    if (dialogInterface != null) {
-                                        dialogInterface.dismiss();
-                                    }
-                                }
-                            })
-                            .setNegativeButton("取消",null);
-                    builder.create().show();
-            }
-        });
     }
 
     @Override

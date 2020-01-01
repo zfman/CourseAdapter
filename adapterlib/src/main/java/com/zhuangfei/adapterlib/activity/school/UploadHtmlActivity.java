@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.school;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
@@ -13,8 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -141,9 +139,6 @@ public class UploadHtmlActivity extends AppCompatActivity {
         jsSupport=new JsSupport(webView);
         jsSupport.applyConfig(this,new MyWebViewCallback());
         webView.addJavascriptInterface(new ShowSourceJs(), "source");
-        if(school.equals("南京艺术学院")){
-            webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
-        }
         webView.loadUrl(url);
     }
 

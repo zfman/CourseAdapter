@@ -12,6 +12,15 @@ public class StationModel implements Serializable{
     private int stationId;
     private String owner;
     private int id;
+    private boolean displayAfterRequest=false;
+
+    public void setDisplayAfterRequest(boolean displayAfterRequest) {
+        this.displayAfterRequest = displayAfterRequest;
+    }
+
+    public boolean isDisplayAfterRequest() {
+        return displayAfterRequest;
+    }
 
     public void setId(int id) {
         this.id = id;

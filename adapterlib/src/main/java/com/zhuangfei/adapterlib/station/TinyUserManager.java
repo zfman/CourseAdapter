@@ -49,7 +49,11 @@ public class TinyUserManager {
     }
 
     public void saveUserInfo(TinyUserInfo info){
-        if(info==null) return;
+        if(info==null){
+            editor.putString("userInfo",null);
+            editor.commit();
+            return;
+        }
         editor.putString("userInfo",new Gson().toJson(info));
         editor.commit();
     }
@@ -75,7 +79,7 @@ public class TinyUserManager {
         TinyUserInfo userInfo=getUserInfo();
         String time=""+System.currentTimeMillis();
         String sign=sign(time);
-        String packageName=PackageUtils.getPackageName(context);
+        String packageName=PackageUtils.getPackageMd5(context);
         String appkey= AdapterLibManager.getAppKey();
         if(userInfo==null||userInfo.getToken()==null||sign==null||userInfo.getName()==null){
             saveUserInfo(null);
@@ -90,6 +94,8 @@ public class TinyUserManager {
                 if(result!=null){
                     if(result.getCode()==200){
                         TinyUserManager.get(context).saveUserInfo(result.getData());
+                    }else if(result.getCode()==332){
+                        saveUserInfo(null);
                     }
                 }
             }

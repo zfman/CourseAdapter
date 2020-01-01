@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.school;
 
 import android.content.DialogInterface;
 import android.content.Intent;

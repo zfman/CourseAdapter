@@ -7,20 +7,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.R;
-import com.zhuangfei.adapterlib.activity.SearchSchoolActivity;
+import com.zhuangfei.adapterlib.activity.school.SearchSchoolActivity;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
-import com.zhuangfei.adapterlib.activity.StationWebViewActivity;
+import com.zhuangfei.adapterlib.activity.station.StationWebViewActivity;
 import com.zhuangfei.adapterlib.station.model.ClipBoardModel;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
+import com.zhuangfei.adapterlib.utils.GsonUtils;
+import com.zhuangfei.adapterlib.utils.ToastTools;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -36,6 +36,10 @@ import retrofit2.Response;
  * Created by Liu ZhuangFei on 2019/2/8.
  */
 public class StationManager {
+
+    static SharedPreferences sp;
+    static SharedPreferences.Editor editor;
+
     public static String getBaseUrl(){
         return "http://www.liuzhuangfei.com/apis/area/station/";
     }
@@ -164,6 +168,59 @@ public class StationManager {
                 Toast.makeText(context,t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public static void checkStationSharePreferences(Context context){
+        if(sp==null){
+            sp=context.getSharedPreferences("station_space_all", Context.MODE_PRIVATE);
+            editor=sp.edit();
+        }
+    }
+
+    public static void openStationWithId(final Activity context, String stationName,int stationId,final IStationOperator operator){
+        checkStationSharePreferences(context);
+        if(TextUtils.isEmpty(stationName)) return;
+        final StationModel stationModel=new StationModel();
+        stationModel.setStationId(stationId);
+        stationModel.setUrl(getBaseUrl()+stationName);
+        stationModel.setDisplayAfterRequest(true);
+        String config=sp.getString("config_"+stationModel.getStationId(),null);
+        if(!TextUtils.isEmpty(config)){
+            handleConfig(context,GsonUtils.getGson().fromJson(config,TinyConfig.class),stationModel,operator);
+            return;
+        }
+        TimetableRequest.getStationConfig(context, stationName, new Callback<TinyConfig>() {
+            @Override
+            public void onResponse(Call<TinyConfig> call, Response<TinyConfig> response) {
+                if(response!=null){
+                    TinyConfig config=response.body();
+                    handleConfig(context,config,stationModel,operator);
+                    if(config!=null){
+                        editor.putString("config_"+stationModel.getStationId(), GsonUtils.getGson().toJson(config));
+                        editor.commit();
+                    }
+                }else{
+                    Toast.makeText(context,"Error:response is null",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TinyConfig> call, Throwable t) {
+                Toast.makeText(context,t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private static void handleConfig(Activity context,TinyConfig config,StationModel stationModel,IStationOperator operator) {
+        if(config!=null){
+            if(config.getSupport()> StationSdk.SDK_VERSION){
+                Toast.makeText(context,"版本太低，不支持本服务站，请升级新版本!",Toast.LENGTH_SHORT).show();
+            }else{
+                StationManager.openStationWithout(context,config,stationModel,operator,new StationSdk());
+            }
+        }else{
+            Toast.makeText(context,"Error:config is null",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static void clearClip(Context context) {

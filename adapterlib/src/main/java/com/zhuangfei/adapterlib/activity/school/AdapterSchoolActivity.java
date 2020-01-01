@@ -1,9 +1,10 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.school;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +18,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -25,15 +28,14 @@ import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
-import com.zhuangfei.adapterlib.station.StationSdk;
+import com.zhuangfei.adapterlib.utils.ToastTools;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 import com.zhuangfei.adapterlib.core.IArea;
 import com.zhuangfei.adapterlib.core.JsSupport;
 import com.zhuangfei.adapterlib.core.ParseResult;
 import com.zhuangfei.adapterlib.core.SpecialArea;
+
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * 适配学校页面
@@ -76,12 +78,9 @@ public class AdapterSchoolActivity extends AppCompatActivity {
     public static final String EXTRA_TYPE="type";
 
     public int nowIndex=0;
-    public boolean isNanjingArtSchool=false;
     int step=0;
 
     TextView tv;
-    boolean loadStep1=false;
-    boolean loadStep2=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,12 +141,6 @@ public class AdapterSchoolActivity extends AppCompatActivity {
             finish();
         }
 
-        if(school.equals("南京艺术学院")){
-            isNanjingArtSchool=true;
-            tv.setClickable(false);
-            tv.setText("自动获取");
-        }
-
         titleTextView.setText(school);
         if(school.indexOf("河南理工")!=-1){
             setUA(true);
@@ -164,11 +157,19 @@ public class AdapterSchoolActivity extends AppCompatActivity {
         jsSupport = new JsSupport(webView);
         specialArea = new SpecialArea(this, new MyCallback());
         jsSupport.applyConfig(this, new MyWebViewCallback());
-        if(isNanjingArtSchool){
-            webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
-        }
-        webView.addJavascriptInterface(specialArea, "sa");
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                webView.loadUrl(url);
+                return true;
+            }
 
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }
+        });
+        webView.addJavascriptInterface(specialArea, "sa");
         webView.loadUrl(url);
     }
 
@@ -205,16 +206,19 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                     webView.loadUrl("https://vpn.hpu.edu.cn/web/1/http/0/218.196.240.97/");
                 }
 
-                if(webView.getUrl().equals("http://210.28.48.52/student2/studentWeb.asp")){
+                if(webView.getUrl().startsWith("http://210.28.48.52/student2/studentWeb.asp")){
                     displayTextView.setText("预测:前往课表页面 "+newProgress+"%...");
+                    ToastTools.show(AdapterSchoolActivity.this,"开始前往课表页面,如果无反应请反馈至1193600556@qq.com");
                     webView.loadUrl("http://210.28.48.52/student2/student_kbtemp.asp");
                 }
                 if(newProgress==100&&webView.getUrl().startsWith("http://210.28.48.52/student2/student_kb2.asp?studentCode=")){
                     displayTextView.setText("预测:解析教室 "+newProgress+"%...");
                     step=1;
+                    ToastTools.show(AdapterSchoolActivity.this,"开始解析教室信息,如果无反应请反馈至1193600556@qq.com");
                     jsSupport.getPageHtml("sa");
                 }
-                if(newProgress==100&&webView.getUrl().equals("http://210.28.48.52/student2/save_xkdNew.asp")){
+                if(newProgress==100&&webView.getUrl().startsWith("210.28.48.52/student2/save_xkdNew.asp")){
+                    ToastTools.show(AdapterSchoolActivity.this,"开始解析课程信息,如果无反应请反馈至1193600556@qq.com");
                     displayTextView.setText("预测:解析课程 "+newProgress+"%...");
                     step=2;
                     jsSupport.getPageHtml("sa");
@@ -234,34 +238,23 @@ public class AdapterSchoolActivity extends AppCompatActivity {
         @Override
         public void onFindTags(final String[] tags) {
             displayTextView.setText("预测:选择解析标签");
-            if(isNanjingArtSchool){
-                if(step>0){
-                    jsSupport.callJs("parse('" + tags[step-1] + "')");
-                    displayTextView.setText("预测:解析 "+tags[step-1]);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context());
+            builder.setTitle("请选择解析标签");
+            builder.setCancelable(false);
+            builder.setItems(tags, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    jsSupport.callJs("parse('" + tags[i] + "')");
+                    displayTextView.setText("预测:解析 "+tags[i]);
                 }
-            }else{
-                AlertDialog.Builder builder = new AlertDialog.Builder(context());
-                builder.setTitle("请选择解析标签");
-                builder.setCancelable(false);
-                builder.setItems(tags, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        jsSupport.callJs("parse('" + tags[i] + "')");
-                        displayTextView.setText("预测:解析 "+tags[i]);
-                    }
-                });
-                builder.create().show();
-            }
+            });
+            builder.create().show();
         }
 
         @Override
         public void onNotFindResult() {
-            if(isNanjingArtSchool&&step==1){
-                webView.loadUrl("http://210.28.48.52/student2/save_xkdNew.asp");
-            }else{
-                onError("未发现匹配");
-                finish();
-            }
+            onError("未发现匹配");
+            finish();
         }
 
         @Override
@@ -408,7 +401,9 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                     })
                     .setNegativeButton("稍后解析", null);
             builder.create().show();
-        }else jsSupport.parseHtml(context(),js);
+        }else{
+            jsSupport.parseHtml(context(),js);
+        }
     }
 
     public void showPopMenu() {
@@ -429,11 +424,13 @@ public class AdapterSchoolActivity extends AppCompatActivity {
                 }
                 if(item.getItemId()==R.id.id_menu2){
                     String now=webView.getUrl();
-                    if(now.indexOf("/")!=-1){
-                        int index=now.lastIndexOf("/");
-                        webView.loadUrl(now.substring(0,index)+"/xkAction.do?actionType=6");
-                    }else{
-                        webView.loadUrl(now+"/xkAction.do?actionType=6");
+                    if(!TextUtils.isEmpty(now)){
+                        if(now.indexOf("/")!=-1){
+                            int index=now.lastIndexOf("/");
+                            webView.loadUrl(now.substring(0,index)+"/xkAction.do?actionType=6");
+                        }else{
+                            webView.loadUrl(now+"/xkAction.do?actionType=6");
+                        }
                     }
                 }
                 if(item.getItemId()==R.id.id_menu3){
@@ -470,5 +467,10 @@ public class AdapterSchoolActivity extends AppCompatActivity {
         }
         CookieSyncManager.createInstance(this);
         CookieManager.getInstance().removeAllCookie();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 }

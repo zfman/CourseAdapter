@@ -11,6 +11,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AdapterLibManager.init("6a733b798df5356869bf1a4f449193bd");
+        AdapterLibManager.init("6a733b798df5356869bf1a4f449193bd","");
     }
 }

@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.school;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,16 +26,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhuangfei.adapterlib.AdapterLibManager;
-import com.zhuangfei.adapterlib.callback.DefaultAdapterOperator;
-import com.zhuangfei.adapterlib.callback.IAdapterOperator;
-import com.zhuangfei.adapterlib.callback.OnVersionFindCallback;
 import com.zhuangfei.adapterlib.ParseManager;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
-import com.zhuangfei.adapterlib.activity.adapter.SearchSchoolAdapter;
 import com.zhuangfei.adapterlib.core.AssetTools;
 import com.zhuangfei.adapterlib.station.IStationOperator;
-import com.zhuangfei.adapterlib.station.IStationSearchOperator;
 import com.zhuangfei.adapterlib.station.StationManager;
 import com.zhuangfei.adapterlib.station.StationSdk;
 import com.zhuangfei.adapterlib.station.model.GreenFruitSchool;
@@ -79,14 +73,15 @@ public class SearchSchoolActivity extends AppCompatActivity {
 
     boolean firstStatus=true;
     public static final int RESULT_CODE=10;
+    public static final String EXTRA_TINY_APP_ENABLE="tiny_app_enable";//怪兽号
     public static final String EXTRA_SEARCH_KEY="key";
     public static final String EXTRA_STATION_OPERATOR="operator";
+    private boolean tinyAppEnable=false;
 
     SharedPreferences sp;
     SharedPreferences.Editor editor;
     IStationOperator operator;
     List<GreenFruitSchool> allSchool;
-    IAdapterOperator adapterOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,8 +191,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             search("recommend://");
         }
 
-        adapterOperator= getAdapterOperator();
-
+        tinyAppEnable=getIntent().getBooleanExtra(EXTRA_TINY_APP_ENABLE,false);
         operator= (IStationOperator) getIntent().getSerializableExtra(EXTRA_STATION_OPERATOR);
         versionDisplayTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,15 +202,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
                     intent.setData(Uri.parse("https://github.com/zfman/CourseAdapter/wiki/%E7%89%88%E6%9C%AC%E5%8F%98%E6%9B%B4"));
                     context.startActivity(intent);
                 }catch (Exception e){}
-            }
-        });
-
-        String updateId="9f37c8171f4100a7ac585dcb702c7f64";
-        AdapterLibManager.checkUpdate(context,updateId, new OnVersionFindCallback() {
-            @Override
-            public void onNewVersionFind(int newNumber, String newVersionName, String newVersionDesc) {
-                versionDisplayTextView.setVisibility(View.VISIBLE);
-                versionDisplayTextView.setText("发现新版本lib-v"+newVersionName+" "+newVersionDesc);
             }
         });
     }
@@ -288,33 +273,14 @@ public class SearchSchoolActivity extends AppCompatActivity {
                         Toast.makeText(this,"通用解析模板发生异常，请联系qq:1193600556",Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    if(school.equals("南京艺术学院")){
-                        if(!adapterOperator.isVip()){
-                            toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
-                        }else{
-                            AlertDialog.Builder builder=new AlertDialog.Builder(this)
-                                    .setTitle("本校功能为高级版功能")
-                                    .setMessage("本校的教务处理非常复杂，需要两个页面结合才可以把完整的数据解析出来，这需要我改动很大的地方才可以支持这种结构，希望大家不要骂我。这个功能我是在晚上下班后做到凌晨1点多的，所以我也是很辛苦的，感谢大家的理解，请开通高级版后再导入，高级版功能3.3元/3个月以及8.8/12个月")
-                                    .setPositiveButton("开通高级版", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            adapterOperator.gotoVip();
-                                            if(dialogInterface!=null){
-                                                dialogInterface.dismiss();
-                                            }
-                                        }
-                                    }).setNegativeButton("取消",null);
-                            builder.create().show();
-                        }
-                    }else{
-                        toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
-                    }
+                    toAdapterSchoolActivity(school.getSchoolName(),school.getUrl(),school.getType(),school.getParsejs());
                 }
             }
         }
         else if(model.getType()==SearchResultModel.TYPE_XIQUER){
             GreenFruitSchool school = (GreenFruitSchool) model.getObject();
-            onXuqerItemClicked(school);
+            if(school!=null){
+            }
 //            GreenFruitSchool school = (GreenFruitSchool) model.getObject();
 //            ActivityTools.toActivityWithout(this, LoginActivity.class,
 //                    new BundleModel()
@@ -326,13 +292,6 @@ public class SearchSchoolActivity extends AppCompatActivity {
         }
     }
 
-    protected IAdapterOperator getAdapterOperator(){
-        return new DefaultAdapterOperator(getContext());
-    }
-
-    public void onXuqerItemClicked(GreenFruitSchool school){
-        Toast.makeText(getContext(),"请子类重写该方法",Toast.LENGTH_SHORT).show();
-    }
 
     public void getStationConfig(final StationModel stationModel){
         String stationName=StationManager.getStationName(stationModel.getUrl());
@@ -509,7 +468,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
     }
 
     public void searchStation(final String key) {
-        if (!TextUtils.isEmpty(key)) {
+        if (!TextUtils.isEmpty(key)&&tinyAppEnable) {
             setLoadLayout(true);
             TimetableRequest.getStations(this, key, new Callback<ListResult<StationModel>>() {
                 @Override

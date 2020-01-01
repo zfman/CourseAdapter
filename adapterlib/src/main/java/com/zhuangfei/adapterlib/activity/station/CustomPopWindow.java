@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity.custom;
+package com.zhuangfei.adapterlib.activity.station;
 
 import android.app.Activity;
 import android.content.Context;
@@ -52,20 +52,14 @@ public class CustomPopWindow extends PopupWindow {
 
     private void initPopWindow() {
         this.setContentView(view);
-        // 设置弹出窗体的宽
         this.setWidth(LinearLayout.LayoutParams.MATCH_PARENT);
-        // 设置弹出窗体的高
         this.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
-        // 设置弹出窗体可点击()
         this.setFocusable(true);
         this.setOutsideTouchable(true);
-        //设置SelectPicPopupWindow弹出窗体动画效果
         this.setAnimationStyle(R.style.mypopwindow_anim_style);
-        // 实例化一个ColorDrawable颜色为半透明
         ColorDrawable dw = new ColorDrawable(0x00FFFFFF);
-        //设置弹出窗体的背景
         this.setBackgroundDrawable(dw);
-        backgroundAlpha(context, 0.5f);//0.0-1.0
+        backgroundAlpha(context, 0.5f);
     }
 
     /**

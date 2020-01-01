@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity;
+package com.zhuangfei.adapterlib.activity.station;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,13 +10,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.TimetableRequest;
 import com.zhuangfei.adapterlib.apis.model.BaseResult;
 import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.station.TinyUserManager;
-import com.zhuangfei.adapterlib.station.UserManager;
 import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
 import com.zhuangfei.adapterlib.utils.ViewUtils;
 
@@ -88,13 +86,22 @@ public class TinyAuthActivity extends AppCompatActivity implements View.OnClickL
         final String name = userName.getText().toString();
         final String pw = userPassword.getText().toString();
         if (name.isEmpty() || pw.isEmpty()) {
-            Toast.makeText(this, "不可以为空",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "请先输入账号或密码",Toast.LENGTH_SHORT).show();
             return;
         }
 
-        loadingLayout.setVisibility(View.VISIBLE);
-        if(isLogin) login(name,pw);
-        else register(name,pw);
+        if(isLogin){
+            loadingLayout.setVisibility(View.VISIBLE);
+            login(name,pw);
+        }
+        else{
+            if(name.trim().length()<5||pw.trim().length()<6){
+                Toast.makeText(this, "账号不得少于5个字符，密码不得少于6个字符",Toast.LENGTH_SHORT).show();
+            }else{
+                loadingLayout.setVisibility(View.VISIBLE);
+                register(name,pw);
+            }
+        }
     }
 
     public void login(String name,String pw){

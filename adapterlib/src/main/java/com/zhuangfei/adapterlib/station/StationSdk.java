@@ -22,7 +22,7 @@ public class StationSdk implements Serializable{
     private static final String TAG = "StationSdk";
     protected IStationView stationView;
     protected StationJsSupport jsSupport;
-    public static int SDK_VERSION = 3;
+    public static int SDK_VERSION = 4;
     protected SharedPreferences preferences;
     protected SharedPreferences.Editor editor;
 

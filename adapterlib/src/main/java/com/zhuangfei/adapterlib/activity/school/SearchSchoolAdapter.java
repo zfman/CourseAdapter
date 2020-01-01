@@ -1,10 +1,8 @@
-package com.zhuangfei.adapterlib.activity.adapter;
+package com.zhuangfei.adapterlib.activity.school;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +15,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.station.model.GreenFruitSchool;
-import com.zhuangfei.adapterlib.station.model.TinyConfig;
-import com.zhuangfei.adapterlib.utils.GsonUtils;
-import com.zhuangfei.adapterlib.utils.ScreenUtils;
 import com.zhuangfei.adapterlib.apis.model.SearchResultModel;
 import com.zhuangfei.adapterlib.apis.model.School;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.apis.model.TemplateModel;
-import com.zhuangfei.adapterlib.station.StationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +42,6 @@ public class SearchSchoolAdapter extends BaseAdapter {
     List<SearchResultModel> list;
     List<SearchResultModel> allData;
     Activity context;
-    String schoolName="unknow";
     SharedPreferences sp;
 
     public SearchSchoolAdapter(Activity context, List<SearchResultModel> allData, List<SearchResultModel> list) {
@@ -111,6 +104,7 @@ public class SearchSchoolAdapter extends BaseAdapter {
                         notifyDataSetChanged();
                     }
                 });
+
 
 
                 if (model != null) {

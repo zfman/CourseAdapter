@@ -81,7 +81,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <com.zhuangfei.adapterlib.activity.view.MyWebView
+            <com.zhuangfei.adapterlib.activity.station.MyWebView
                 android:id="@+id/id_webview"
                 android:scrollbars="none"
                 android:layout_width="match_parent"

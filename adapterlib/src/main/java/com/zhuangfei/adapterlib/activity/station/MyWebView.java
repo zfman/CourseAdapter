@@ -1,4 +1,4 @@
-package com.zhuangfei.adapterlib.activity.view;
+package com.zhuangfei.adapterlib.activity.station;
 
 
 import android.content.Context;

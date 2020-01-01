@@ -21,6 +21,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.zhuangfei.adapterlib.utils.ToastTools;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,15 +61,19 @@ public class JsSupport {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.clearFormData();
         settings.setSupportZoom(true);
-        settings.setBuiltInZoomControls(true);
+//        settings.setBuiltInZoomControls(true);
         webView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent,
                                         String contentDisposition, String mimetype,
                                         long contentLength) {
-                Uri uri = Uri.parse(url);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                context.startActivity(intent);
+                try {
+                    Uri uri = Uri.parse(url);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    context.startActivity(intent);
+                }catch (Exception e){
+                    ToastTools.show(context,e.getMessage());
+                }
             }
         });
 

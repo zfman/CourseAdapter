@@ -6,30 +6,24 @@
 
     <application>
         <activity
-            android:name=".activity.UploadHtmlActivity"
+            android:name=".activity.school.UploadHtmlActivity"
             android:theme="@style/NoActionBarTheme" />
         <activity
-            android:name=".activity.AdapterTipActivity"
+            android:name=".activity.school.AdapterTipActivity"
             android:theme="@style/NoActionBarTheme" />
         <activity
-            android:name=".activity.AdapterSchoolActivity"
+            android:name=".activity.school.AdapterSchoolActivity"
             android:theme="@style/NoActionBarTheme" />
         <activity
-            android:name=".activity.AdapterSameTypeActivity"
+            android:name=".activity.school.AdapterSameTypeActivity"
             android:theme="@style/NoActionBarTheme" />
         <activity
-            android:name=".activity.SearchSchoolActivity"
+            android:name=".activity.school.SearchSchoolActivity"
             android:theme="@style/NoActionBarTheme"
             android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:label="一键"
-            android:name=".activity.OnceActivity"
-            android:theme="@style/NoActionBarTheme" />
-        <activity android:name=".activity.OnceNumberActivity" android:label="账号管理" />
-        <activity android:name=".activity.AddUserActivity" android:label="添加账号"></activity>
-        <activity android:name=".activity.StationWebViewActivity"
+        <activity android:name=".activity.station.StationWebViewActivity"
             android:theme="@style/NoActionBarTheme"></activity>
-        <activity android:name=".activity.TinyAuthActivity"
+        <activity android:name=".activity.station.TinyAuthActivity"
             android:theme="@style/NoActionBarTheme"></activity>
     </application>
 

@@ -1,7 +1,11 @@
 package com.zhuangfei.adapterlib.apis;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.widget.Toast;
 
+import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.R;
 import com.zhuangfei.adapterlib.apis.model.School;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.apis.model.AdapterInfo;
@@ -15,8 +19,12 @@ import com.zhuangfei.adapterlib.apis.model.ObjResult;
 import com.zhuangfei.adapterlib.apis.model.StationSpaceModel;
 import com.zhuangfei.adapterlib.apis.model.UserDebugModel;
 import com.zhuangfei.adapterlib.apis.model.ValuePair;
+import com.zhuangfei.adapterlib.station.TinyUserManager;
 import com.zhuangfei.adapterlib.station.model.TinyConfig;
 import com.zhuangfei.adapterlib.station.model.TinyUserInfo;
+import com.zhuangfei.adapterlib.utils.DeviceTools;
+import com.zhuangfei.adapterlib.utils.Md5Security;
+import com.zhuangfei.adapterlib.utils.PackageUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -108,11 +116,29 @@ public class TimetableRequest {
         Call<BaseResult> call=service.registerUser(name,password);
         call.enqueue(callback);
     }
+
     public static void loginUser(Context context, String name,String password,Callback<ObjResult<TinyUserInfo>> callback) {
+        String time=""+System.currentTimeMillis();
+        String sign=sign(context,time);
+        String packageName= PackageUtils.getPackageMd5(context);
+        String appkey= AdapterLibManager.getAppKey();
         SchoolService service = ApiUtils.getRetrofitForSchool(context)
                 .create(SchoolService.class);
-        Call<ObjResult<TinyUserInfo>> call=service.loginUser(name,password);
+        Call<ObjResult<TinyUserInfo>> call=service.loginUser(name,password,time,sign,packageName,appkey,AdapterLibManager.getLibVersionNumber());
         call.enqueue(callback);
+    }
+
+    public static String sign(Context context,String timestamp){
+        String packageMd5= PackageUtils.getPackageMd5(context);
+        String appkey= AdapterLibManager.getAppKey();
+        StringBuffer sb=new StringBuffer();
+        sb.append("time="+timestamp);
+        String sign= Md5Security.encrypBy(sb.toString()+context.getResources().getString(R.string.md5_sign_key));
+        if(TextUtils.isEmpty(packageMd5)||TextUtils.isEmpty(appkey)){
+            Toast.makeText(context,"未初始化",Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return sign;
     }
 
     public static void updateToken(Context context, String token,String time,String sign,String packageName,String appkey,Callback<ObjResult<TinyUserInfo>> callback) {

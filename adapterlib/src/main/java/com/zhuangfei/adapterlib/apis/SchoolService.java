@@ -73,10 +73,15 @@ public interface SchoolService {
     Call<BaseResult> registerUser(@Field("name") String name,
                                   @Field("password") String password);
 
-    @POST(UrlContants.URL_LOGIN_USER)
+    @POST(UrlContants.URL_LOGIN_USER_V2)
     @FormUrlEncoded
     Call<ObjResult<TinyUserInfo>> loginUser(@Field("name") String name,
-                                            @Field("password") String password);
+                                            @Field("password") String password,
+                                            @Field("time") String time,
+                                            @Field("sign") String sign,
+                                            @Field("package") String packageName,
+                                            @Field("appkey") String appkey,
+                                            @Field("version")int version);
 
     @POST(UrlContants.URL_UPDATE_TOKEN)
     @FormUrlEncoded
