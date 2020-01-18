@@ -1,5 +1,6 @@
 package com.zhuangfei.adapterlib;
 
+import com.zhuangfei.adapterlib.apis.model.GreenFruitCourse;
 import com.zhuangfei.adapterlib.core.ParseResult;
 
 import java.util.List;
@@ -12,6 +13,15 @@ public class ParseManager {
     private static boolean success;
     private static long timestamp;
     private static List<ParseResult> data;
+    private static int curweek=1;
+
+    public static void setCurweek(int curweek) {
+        ParseManager.curweek = curweek;
+    }
+
+    public static int getCurweek() {
+        return curweek;
+    }
 
     public static void setSuccess(boolean success) {
         ParseManager.success = success;

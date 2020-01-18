@@ -30,7 +30,7 @@ public class UrlContants {
     //获取已适配学校列表
     public final static String URL_GET_ADAPTER_SCHOOLS="index.php?c=Adapter&a=getAdapterList";
 
-    public final static String URL_GET_ADAPTER_SCHOOLS_V2="index.php?c=Adapter&a=getAdapterListV2";
+    public final static String URL_GET_ADAPTER_SCHOOLS_V3="index.php?c=Adapter&a=getAdapterListV3";
 
     public final static String URL_BASE_SCHOOLS="http://www.liuzhuangfei.com/apis/area/";
 
@@ -63,6 +63,7 @@ public class UrlContants {
 
     public final static String URL_GET_STATION_SPACE="index.php?c=Adapter&a=getStationSpace";
 
-    public final static String URL_RECORD_USER_EVENT="index.php?c=Adapter&a=recordUserEvent";
-
+    //青果URL
+    public final static String URL_QINGGUO="wap/wapController.jsp";
+    public final static String URL_BASE_QINGGUO="http://www.xiqueer.com:8080/manager/";
 }

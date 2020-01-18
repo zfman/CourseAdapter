@@ -25,13 +25,14 @@ import retrofit2.http.POST;
 
 public interface SchoolService {
 
-    @POST(UrlContants.URL_GET_ADAPTER_SCHOOLS_V2)
+    @POST(UrlContants.URL_GET_ADAPTER_SCHOOLS_V3)
     @FormUrlEncoded
     Call<ObjResult<AdapterResultV2>> getAdapterSchoolsV2(@Field("key") String key,
                                                          @Field("package") String packageName,
                                                          @Field("appkey") String appkey,
                                                          @Field("time") String time,
-                                                         @Field("sign") String sign);
+                                                         @Field("sign") String sign,
+                                                         @Field("version") int version);
 
     @POST(UrlContants.URL_PUT_HTML)
     @FormUrlEncoded

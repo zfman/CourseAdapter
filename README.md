@@ -86,11 +86,14 @@ Step 2. Add the dependency
 ```
 
 
-默认情况下进入搜索页面是空的，当然也可以设置一个默认的关键字，进入搜索页面后立即请求，示例如下:
+跳转到搜索页面时可以设置参数，示例如下:
 
 ```java
 	Intent intent=new Intent(MainActivity.this, SearchSchoolActivity.class);
+	//默认情况下进入搜索页面是空的，设置一个默认的关键字，进入搜索页面后立即请求
 	intent.putExtra(SearchSchoolActivity.EXTRA_SEARCH_KEY,"河南理工大学");
+	//以下参数设置是否搜索"怪兽号"
+	intent.putExtra(SearchSchoolActivity.EXTRA_TINY_APP_ENABLE,false);
 	startActivityForResult(intent,REQUEST_CODE);
 ```
 

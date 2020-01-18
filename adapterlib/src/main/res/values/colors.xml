@@ -21,4 +21,5 @@
     <color name="app_loading_tips_color2">#A0A0A0</color>
     <color name="app_loading_tips_color3">#818181</color>
     <color name="app_gray7">#BFBFBF</color>
+    <color name="dark">#3D3B46</color>
 </resources>

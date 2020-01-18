@@ -207,7 +207,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
     }
 
     public void onItemClicked(int i) {
-        SearchResultModel model=models.get(i);
+        final SearchResultModel model=models.get(i);
         if(model==null) return;
         //通用算法解析
         if(model.getType()==SearchResultModel.TYPE_COMMON){
@@ -234,7 +234,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
                                             startActivity(intent);
                                         }
                                         else {
-                                            toAdapterSameTypeActivity(templateModel.getTemplateName(),templateModel.getTemplateJs());
+                                            toAdapterSameTypeActivity(templateModel.getTemplateName(),templateModel.getTemplateJs()+baseJs);
                                         }
                                     }
                                 }
@@ -280,11 +280,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
         else if(model.getType()==SearchResultModel.TYPE_XIQUER){
             GreenFruitSchool school = (GreenFruitSchool) model.getObject();
             if(school!=null){
+                Intent intent=new Intent(this,XiquerLoginActivity.class);
+                intent.putExtra("selectSchool",school);
+                startActivity(intent);
             }
-//            GreenFruitSchool school = (GreenFruitSchool) model.getObject();
-//            ActivityTools.toActivityWithout(this, LoginActivity.class,
-//                    new BundleModel()
-//                            .put("selectSchool",school));
         }
         //服务站
         else{
@@ -413,7 +412,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
         String appkey=AdapterLibManager.getAppKey();
         String time=""+System.currentTimeMillis();
         StringBuffer sb=new StringBuffer();
-        sb.append("time="+time);
+        sb.append("time="+time).append("&key="+key);
         String sign= Md5Security.encrypBy(sb.toString()+context.getResources().getString(R.string.md5_sign_key));
         if(TextUtils.isEmpty(packageMd5)||TextUtils.isEmpty(appkey)){
             Toast.makeText(context,"未初始化",Toast.LENGTH_SHORT).show();
@@ -423,7 +422,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
         searchStation(key);
         if (!TextUtils.isEmpty(key)) {
             setLoadLayout(true);
-            TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, time,sign,new Callback<ObjResult<AdapterResultV2>>() {
+            TimetableRequest.getAdapterSchoolsV3(this, key,packageMd5,appkey, time,sign,new Callback<ObjResult<AdapterResultV2>>() {
                 @Override
                 public void onResponse(Call<ObjResult<AdapterResultV2>> call, Response<ObjResult<AdapterResultV2>> response) {
                     ObjResult<AdapterResultV2> result = response.body();

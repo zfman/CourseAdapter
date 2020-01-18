@@ -5,7 +5,12 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.zhuangfei.adapterlib.AdapterLibManager;
+import com.zhuangfei.adapterlib.ParamsManager;
 import com.zhuangfei.adapterlib.R;
+import com.zhuangfei.adapterlib.apis.model.GreenFruitCourse;
+import com.zhuangfei.adapterlib.apis.model.GreenFruitParams;
+import com.zhuangfei.adapterlib.apis.model.GreenFruitProfile;
+import com.zhuangfei.adapterlib.apis.model.GreenFruitTerm;
 import com.zhuangfei.adapterlib.apis.model.School;
 import com.zhuangfei.adapterlib.apis.model.StationModel;
 import com.zhuangfei.adapterlib.apis.model.AdapterInfo;
@@ -77,9 +82,9 @@ public class TimetableRequest {
         call.enqueue(callback);
     }
 
-    public static void getAdapterSchoolsV2(Context context,String key,String packageName,String appkey,String time,String sign,Callback<ObjResult<AdapterResultV2>> callback) {
+    public static void getAdapterSchoolsV3(Context context,String key,String packageName,String appkey,String time,String sign,Callback<ObjResult<AdapterResultV2>> callback) {
         SchoolService schoolService=ApiUtils.getRetrofitForSchool(context).create(SchoolService.class);
-        Call<ObjResult<AdapterResultV2>> call=schoolService.getAdapterSchoolsV2(key,packageName,appkey,time,sign);
+        Call<ObjResult<AdapterResultV2>> call=schoolService.getAdapterSchoolsV2(key,packageName,appkey,time,sign,AdapterLibManager.getLibVersionNumber());
         call.enqueue(callback);
     }
 
@@ -159,6 +164,27 @@ public class TimetableRequest {
         SchoolService service = ApiUtils.getRetrofitForSchool(context)
                 .create(SchoolService.class);
         Call<ObjResult<StationSpaceModel>> call=service.getStationSpace(stationId,moduleName,token);
+        call.enqueue(callback);
+    }
+
+    public static void loginGreenFruit(Context context,String schoolId,String loginId,String password,Callback<GreenFruitProfile> callback) {
+        TimetableService service=ApiUtils.getRetrofitForGreenFruit(context).create(TimetableService.class);
+        GreenFruitParams params= ParamsManager.get(context).getLoginParams(schoolId,loginId,password);
+        Call<GreenFruitProfile> call=service.loginGreenFruit(params.getParam(),params.getParam2(),params.getToken(),params.getAppinfo());
+        call.enqueue(callback);
+    }
+
+    public static void getGreenFruitCourse(Context context,String loginId,String userType,String termId,String week,String token,Callback<GreenFruitCourse> callback) {
+        TimetableService service=ApiUtils.getRetrofitForGreenFruit(context).create(TimetableService.class);
+        GreenFruitParams params= ParamsManager.get(context).getCourseParams(loginId,userType,termId,week,token);
+        Call<GreenFruitCourse> call=service.getGreenFruitCourse(params.getParam(),params.getParam2(),params.getToken(),params.getAppinfo());
+        call.enqueue(callback);
+    }
+
+    public static void getGreenFruitTerm(Context context,String userId,String userType,String token,Callback<GreenFruitTerm> callback) {
+        TimetableService service=ApiUtils.getRetrofitForGreenFruit(context).create(TimetableService.class);
+        GreenFruitParams params= ParamsManager.get(context).getTermParams(userId,userType,token);
+        Call<GreenFruitTerm> call=service.getGreenFruitTerm(params.getParam(),params.getParam2(),params.getToken(),params.getAppinfo());
         call.enqueue(callback);
     }
 }

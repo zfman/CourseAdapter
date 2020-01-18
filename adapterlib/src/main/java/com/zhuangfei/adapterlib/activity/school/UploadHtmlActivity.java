@@ -174,6 +174,7 @@ public class UploadHtmlActivity extends AppCompatActivity {
                     String finalContent="";
                     finalContent+="LibVersionName:"+ AdapterLibManager.getLibVersionName()+"<br/>";
                     finalContent+="LibVersionNumber:"+ AdapterLibManager.getLibVersionNumber()+"<br/>";
+                    finalContent+="AppKey:"+ AdapterLibManager.getAppKey()+"<br/>";
                     finalContent+="Package:"+ PackageUtils.getPackageName(UploadHtmlActivity.this)+"<br/>";
                     finalContent+="url:"+ webView.getUrl()+"<br/>";
                     finalContent+=content;
