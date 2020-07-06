@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="ArcHeight" format="dimension" />
+
+    <declare-styleable name="ArcView">
+        <attr name="ArcBackground" format="color" />
+        <attr name="ArcHeight"/>
+    </declare-styleable>
+
+    <declare-styleable name="ArcImageView">
+        <attr name="ArcImageHeight" format="dimension" />
+        <attr name="ArcHeight"/>
+    </declare-styleable>
+
+    <declare-styleable name="TransitTextView">
+        <attr name="normalColor" format="color"/>
+        <attr name="selectColor" format="color"/>
+        <attr name="endProgress" format="float"/>
+    </declare-styleable>
+</resources>

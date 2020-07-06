@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="view_loading" type="id"/>
+    <item name="view_except" type="id"/>
+    <item name="view_target" type="id"/>
+</resources>

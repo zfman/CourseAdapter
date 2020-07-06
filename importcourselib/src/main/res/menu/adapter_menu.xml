@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/id_menu1"
+        android:title="网址导航器"/>
+    <item android:id="@+id/id_menu6"
+        android:title="导课问题反馈"/>
+    <item android:id="@+id/id_menu3"
+        android:title="PC UA"/>
+    <item android:id="@+id/id_menu4"
+        android:title="Mobile UA"/>
+
+</menu>

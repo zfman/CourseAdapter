@@ -1,0 +1,3 @@
+<set xmlns:android="http://schemas.android.com/apk/res/android" android:duration="300">
+	<translate android:fromXDelta="0%p" android:toXDelta="-50%p"/>
+</set>

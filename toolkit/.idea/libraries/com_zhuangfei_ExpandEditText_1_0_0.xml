@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="com.zhuangfei:ExpandEditText-1.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/ExpandEditText-1.0.0.aar/bd1bddd35eb186e162c38a75f79878a0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/ExpandEditText-1.0.0.aar/bd1bddd35eb186e162c38a75f79878a0/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.zhuangfei/ExpandEditText/1.0.0/fcb3a31916e465ede03e1ac6bec3676fb73b7f0/ExpandEditText-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

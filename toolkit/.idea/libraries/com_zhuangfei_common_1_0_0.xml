@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="com.zhuangfei:common-1.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/common-1.0.0.aar/7ea8d599ee28bccf34a822c3a88af612/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/common-1.0.0.aar/7ea8d599ee28bccf34a822c3a88af612/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/common-1.0.0.aar/7ea8d599ee28bccf34a822c3a88af612/jars/libs/gson-2.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.zhuangfei/common/1.0.0/c294f808f395a87b759403b6879a6a0636a1c11/common-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

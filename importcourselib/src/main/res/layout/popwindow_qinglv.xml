@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:id="@+id/id_top_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:gravity="center_horizontal"
+        android:background="@drawable/border_multi_item"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_scancode"/>
+
+        <TextView
+            android:id="@+id/pop_scan"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:textSize="17sp"
+            android:gravity="center_vertical"
+            android:text="去扫码"/>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/pop_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/border_multi_item"
+        android:gravity="center"
+        android:text="取消"/>
+</LinearLayout>

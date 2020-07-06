@@ -1,1 +1,1 @@
-include ':app', ':adapterlib'
+include ':app', ':importcourselib', ':toolkit'
