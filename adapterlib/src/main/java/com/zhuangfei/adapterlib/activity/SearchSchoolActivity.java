@@ -88,6 +88,9 @@ public class SearchSchoolActivity extends AppCompatActivity {
     List<GreenFruitSchool> allSchool;
     IAdapterOperator adapterOperator;
 
+    private boolean xiquerEnable=false;
+    private boolean stationEnable=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +98,9 @@ public class SearchSchoolActivity extends AppCompatActivity {
         ViewUtils.setStatusTextGrayColor(this);
         initView();
         inits();
-        loadSchools();
+        if(xiquerEnable){
+            loadSchools();
+        }
     }
 
     protected StationSdk getStationSdk(){
@@ -461,7 +466,10 @@ public class SearchSchoolActivity extends AppCompatActivity {
             return;
         }
 
-        searchStation(key);
+        if(stationEnable){
+            searchStation(key);
+        }
+
         if (!TextUtils.isEmpty(key)) {
             setLoadLayout(true);
             TimetableRequest.getAdapterSchoolsV2(this, key,packageMd5,appkey, time,sign,new Callback<ObjResult<AdapterResultV2>>() {
@@ -605,7 +613,7 @@ public class SearchSchoolActivity extends AppCompatActivity {
             }
         }
 
-        if(allSchool!=null){
+        if(allSchool!=null  && xiquerEnable){
             for (GreenFruitSchool schoolBean : allSchool) {
                 if (schoolBean.getXxmc() != null && schoolBean.getXxmc().indexOf(key) != -1) {
                     SearchResultModel searchResultModel = new SearchResultModel();
