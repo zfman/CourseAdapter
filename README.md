@@ -31,7 +31,7 @@ Step 2. Add the dependency
 
 ```gradle
 	dependencies {
-	        implementation 'com.github.zfman:ImportCourse:2.1.2'
+	        implementation 'com.github.zfman.ImportCourse:importcourselib:2.1.2'
 	}
 ```
 
